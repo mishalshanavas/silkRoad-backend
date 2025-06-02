@@ -1,6 +1,6 @@
 import os
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
@@ -10,6 +10,23 @@ from silkApi.models import Student
 @csrf_exempt
 def sign_in(request):
     return render(request, 'sign_in.html')
+
+def auth_status(request):
+    """
+    API endpoint to check authentication status and return user data
+    Returns user's profile picture and email if logged in
+    """
+    if 'user_data' in request.session:
+        user_data = request.session['user_data']
+        return JsonResponse({
+            'isAuthenticated': True,
+            'picture': user_data.get('picture', ''),
+            'email': user_data.get('email', ''),
+            'name': user_data.get('name', '')
+        })
+    return JsonResponse({
+        'isAuthenticated': False
+    })
 
 @csrf_exempt
 def auth_receiver(request):
@@ -24,7 +41,7 @@ def auth_receiver(request):
             token, requests.Request(), os.environ['GOOGLE_OAUTH_CLIENT_ID']
         )
         
-        # Check if email ends with sahrdaya.ac.in
+        # Check if sahrdaya.ac.in mail
         if not user_data.get('email', '').endswith('@sahrdaya.ac.in'):
             return HttpResponse('Only sahrdaya.ac.in email addresses are allowed here 😿', status=403)
             

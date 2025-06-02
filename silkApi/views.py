@@ -21,7 +21,7 @@ def contribute_instagram_id(request, sr_no, instagram_id):
     except Student.DoesNotExist:
         return HttpResponseNotFound("student not found")
     
-
+@require_POST
 def toggle_opt_out(request, sr_no):
     if not authorized_user(request, sr_no):
         return HttpResponse("You are not allowed to perform this action.", status=403)
@@ -48,9 +48,9 @@ def students_by_sr(request,sr_no):
     except Student.DoesNotExist:
         return HttpResponseNotFound("student not found")
 
-@require_POST
+
 def auto_complete(request):
-    query = request.POST.get('q', '')
+    query = request.GET.get('q', '')
     if not query:
         return JsonResponse([], safe=False)
 
@@ -60,7 +60,7 @@ def auto_complete(request):
 
     results = [
         {
-            'id': student.id,
+            'id': student.sr_no,
             'name': student.name,
             'department': student.department,
             'opt_out': student.opt_out
@@ -74,3 +74,7 @@ def confidential(request, sr_no=None):
        return HttpResponse("confidential data",)
    else:
        return HttpResponse("You are not allowed to perform this action.", status=403)
+   
+def search(request):
+    return render(request, 'search.html') 
+        

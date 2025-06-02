@@ -29,17 +29,6 @@
         height: 100px;
         object-fit: cover;
         margin-top: 10px;
-        transition: opacity 0.3s ease;
-        background-color: #f0f0f0;
-      }
-
-      img:not([src]), img[src=""] {
-        opacity: 0.5;
-      }
-
-      img.error {
-        opacity: 0.7;
-        background-color: #e0e0e0;
       }
 
       p {
@@ -69,13 +58,6 @@
       <div>
         <p>Hi {{ request.session.user_data.given_name }} 🙂</p>
         <p>Your email is {{ request.session.user_data.email }}</p>
-        <img 
-            src="{{ request.session.user_data.picture }}" 
-            alt="Profile picture of {{ request.session.user_data.given_name }}"
-            onerror="this.onerror=null; this.classList.add('error'); this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23e0e0e0\'/%3E%3C/svg%3E';"
-            loading="lazy"
-            crossorigin="anonymous"
-        />
         <p>Click here to <a href="/sign-out">Sign out</a></p>
       </div>
       {% else %}

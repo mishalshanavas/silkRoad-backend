@@ -51,6 +51,7 @@ class Student(models.Model):
     contributed_ig = models.CharField(max_length=30, blank=True, null=True)
     contributed_ph = models.FloatField(blank=True, null=True)
     contributor = models.TextField(blank=True, null=True)
+    
 
     class Meta:
         db_table = 'students'
