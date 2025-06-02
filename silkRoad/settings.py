@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'silkApi',
-    'sim'
+    'sim',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'silkRoad.urls'
@@ -148,3 +150,25 @@ if not GOOGLE_OAUTH_CLIENT_ID:
 # We need these lines below to allow the Google sign in popup to work.
 SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = False  # More secure
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    # Add other domains that need to access your resources
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'OPTIONS',
+]
+
+# If you need to allow specific headers
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'origin',
+    'user-agent',
+]

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from silkApi.views import students_by_sr, auto_complete, confidential, toggle_opt_out
+from silkApi.views import students_by_sr, auto_complete, confidential, toggle_opt_out,contribute_instagram_id
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,5 +24,6 @@ urlpatterns = [
     path('api/autocomplete/', auto_complete, name='auto-complete'),
     path('api/confidential/<str:sr_no>/', confidential, name='confidential'),
     path('api/toggle-opt-out/<str:sr_no>/', toggle_opt_out, name='toggle-opt-out'),
+    path('api/contribute-instagram/<str:sr_no>/<str:instagram_id>/', contribute_instagram_id, name='contribute-instagram'),
     path('', include('sim.urls'))
 ]

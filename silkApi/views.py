@@ -8,6 +8,20 @@ def authorized_user(request, sr_no):
         return True
     return False
 
+def contribute_instagram_id(request, sr_no, instagram_id):
+    if not authorized_user(request, sr_no):
+        return HttpResponse("You are not allowed to perform this action.", status=403)
+
+    try:
+        student = Student.objects.get(sr_no=sr_no)
+        student.contributed_ig = instagram_id
+        student.contributor = request.session.get('user_data', {}).get('email', '')
+        student.save()
+        return JsonResponse({'Instagram_id': student.contributed_ig}, status=200)
+    except Student.DoesNotExist:
+        return HttpResponseNotFound("student not found")
+    
+
 def toggle_opt_out(request, sr_no):
     if not authorized_user(request, sr_no):
         return HttpResponse("You are not allowed to perform this action.", status=403)
