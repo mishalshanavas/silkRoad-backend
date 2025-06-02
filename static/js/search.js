@@ -121,7 +121,9 @@ function displayStudentDetails(student) {
                     ? `<div class="instagram-info">
                         <a href="https://instagram.com/${student.Instagram_id}" target="_blank">@${student.Instagram_id}</a>
                        </div>`
-                    : 'Instagram ID not yet available 😢'
+                    : `<span style="color: #666;">Instagram ID not available</span>
+                       <button class="popup-submit" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem;" 
+                       onclick="showInstagramContribution('${student.sr_no}')">Add ID</button>`
                 }
             </div>
             <div class="social-id">
@@ -129,6 +131,14 @@ function displayStudentDetails(student) {
                 ${student.father_mobile
                     ? `<a href="tel:${student.father_mobile}">${student.father_mobile}</a>`
                     : 'Phone number not available 📱'}
+            </div>
+            <div class="locality">
+                <span>Locality</span>
+                <div class="locality-tags">
+                    ${student.street ? `<span class="loc-box">${student.street}</span>` : ''}
+                    ${student.street2 ? `<span class="loc-box">${student.street2}</span>` : ''}
+                    ${student.district ? `<span class="loc-box">${student.district}</span>` : ''}
+                </div>
             </div>
             ${student.department ? `<p><strong>Department:</strong> ${student.department}</p>` : ''}
             ${is1970Date

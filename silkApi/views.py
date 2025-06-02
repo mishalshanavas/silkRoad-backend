@@ -1,8 +1,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.http import require_POST
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponseNotFound, HttpResponse
+from django.http import JsonResponse, HttpResponseNotFound, HttpResponseForbidden, HttpResponse
+import json
 from .models import Student
 
 def authorized_user(request, sr_no):
@@ -10,18 +10,43 @@ def authorized_user(request, sr_no):
         return True
     return False
 
-def contribute_instagram_id(request, sr_no, instagram_id):
+@csrf_exempt
+def contribute_instagram_id(request, sr_no):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
     if not authorized_user(request, sr_no):
-        return HttpResponse("You are not allowed to perform this action.", status=403)
+        return HttpResponseForbidden("You are not authorized to perform this action.")
 
     try:
+        # Parse the JSON body
+        data = json.loads(request.body)
+        instagram_id = data.get('instagram_id')
+    
+        if not instagram_id or not isinstance(instagram_id, str):
+            return JsonResponse({'error': 'Invalid Instagram ID'}, status=400)
+    
+        instagram_id = instagram_id.strip().lstrip('@')
+    
         student = Student.objects.get(sr_no=sr_no)
         student.contributed_ig = instagram_id
+        if student.Instagram_id is None:
+            student.Instagram_id = instagram_id + ' (Not verified)'
+
         student.contributor = request.session.get('user_data', {}).get('email', '')
         student.save()
-        return JsonResponse({'Instagram_id': student.contributed_ig}, status=200)
+        
+        return JsonResponse({
+            'success': True,
+            'Instagram_id': student.contributed_ig
+        })
+
     except Student.DoesNotExist:
-        return HttpResponseNotFound("student not found")
+        return HttpResponseNotFound("Student not found")
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
     
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -46,6 +71,9 @@ def students_by_sr(request,sr_no):
                                          'Instagram_id',
                                          'father_mobile',
                                          'opt_out',
+                                         'street',
+                                         'street2',
+                                         'district'
                                          ).get(sr_no=sr_no)
         return JsonResponse(student)
     except Student.DoesNotExist:
