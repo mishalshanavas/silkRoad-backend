@@ -104,7 +104,9 @@ function displayStudentDetails(student) {
             <p>This student has chosen to keep their information private.</p>
             <small>Please respect their privacy preference.</small>
             <button class="clear-btn" onclick="clearSearch()">Back to Search</button>
-        </div>
+            <div class="opt-out-info">
+                <span class="opt-out-info"> <a href="#" onclick="toggleOptOut('${student.sr_no}')">Request to unhide your data? 🦇</a></span>
+            </div>
         </div>`;
     return;
     }
@@ -119,8 +121,7 @@ function displayStudentDetails(student) {
                     ? `<div class="instagram-info">
                         <a href="https://instagram.com/${student.Instagram_id}" target="_blank">@${student.Instagram_id}</a>
                        </div>`
-                    : `Instagram ID not yet available 😢
-                        <button class="contribute-btn" onclick="showInstagramContribution('${student.sr_no}')">Contribute Instagram ID</button>`
+                    : 'Instagram ID not yet available 😢'
                 }
             </div>
             <div class="social-id">
@@ -132,26 +133,16 @@ function displayStudentDetails(student) {
             ${student.department ? `<p><strong>Department:</strong> ${student.department}</p>` : ''}
             ${is1970Date
                 ? 'DOB not available'
-                : `<p><strong>Date of Birth:</strong> ${dob.toLocaleDateString()} 
+                : `<p><strong>Date of Birth:</strong> ${dob.getDate().toString().padStart(2, '0')}/${(dob.getMonth()+1).toString().padStart(2, '0')}/${dob.getFullYear()} 
                     <span class="age-info">${age} years old${age < 18 ? ' 🚩' : ''}</span></p>
                     <p><strong>Days until next birthday:</strong> ${getDaysUntilNextBirthday(student.date_of_birth)} days</p>`}
         </div>
-        ${generateOptOutLink(student)}
+        <p class="opt-out-info"> 
+        <span class="opt-out-info"> <a href="#" onclick="toggleOptOut('${student.sr_no}')">Request to hide your data?</a></span>
+        </p>
         <button class="clear-btn" onclick="clearSearch()">Clear Results</button>
         <div id="contribute-instagram-form" style="display:none; margin-top:10px;"></div>
     </div>`;
-}
-
-function generateOptOutLink(student) {
-    if (currentUser && currentUser.sr_no === student.sr_no) {
-    return `
-        <div class="opt-out">
-        <button onclick="toggleOptOut('${student.sr_no}')" class="opt-out-btn">
-            ${student.opt_out ? '🔓 Opt back in' : '🔒 Request to remove your data'}
-        </button>
-        </div>`;
-    }
-    return '';
 }
 
 searchForm.addEventListener('submit', async function (e) {
@@ -244,57 +235,50 @@ function updateAuthUI(user) {
         loginBtn.href = '/sign_in';
     }
 }
-
 async function toggleOptOut(srNo) {
     if (!currentUser) {
-    alert('Please login to perform this action');
-    return;
+        const optOutInfo = document.querySelector('.opt-out-info');
+        if (optOutInfo) {
+            optOutInfo.textContent = 'Unauthorized login with your account ';
+            optOutInfo.style.color = 'red';
+        }
+        return;
     }
 
     try {
-    const response = await fetch(`${API_BASE}/toggle-opt-out/${srNo}/`, {
-        method: 'POST',
-        credentials: 'include'
-    });
+        const response = await fetch(`${API_BASE}/toggle-opt-out/${srNo}/`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-    if (response.ok) {
-        const data = await response.json();
+        const optOutInfo = document.querySelector('.opt-out-info');
+        if (!response.ok) {
+            if (optOutInfo) {
+                if (response.status === 401 || response.status === 403) {
+                    optOutInfo.textContent = 'Unauthorized';
+                    optOutInfo.style.color = 'red';
+                } else {
+                    optOutInfo.textContent = 'Error';
+                    optOutInfo.style.color = 'red';
+                }
+            }
+            return;
+        }
+
+        await response.json();
         await selectStudent(srNo);
-        alert(data.message || 'Status updated successfully');
-    } else {
-        alert('Error updating status');
-    }
+        if (optOutInfo) {
+            optOutInfo.textContent = 'Success';
+            optOutInfo.style.color = 'green';
+        }
     } catch (error) {
-    console.error('Error toggling opt-out:', error);
-    alert('Error updating status');
-    }
-}
-
-function showInstagramContribution(srNo) {
-    const popup = document.createElement('div');
-    popup.className = 'popup-overlay';
-    popup.innerHTML = `
-        <div class="popup-content">
-            <div class="popup-header">
-                <h3>Contribute Instagram ID</h3>
-            </div>
-            <input type="text" 
-                   class="popup-input" 
-                   id="instagramInput" 
-                   placeholder="Enter Instagram username (without @)"
-                   pattern="^[A-Za-z0-9._]{1,30}$">
-            <div class="popup-buttons">
-                <button class="popup-cancel" onclick="closePopup()">Cancel</button>
-                <button class="popup-submit" onclick="submitInstagramId('${srNo}')">Submit</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(popup);
-}
-
-function closePopup() {
-    const popup = document.querySelector('.popup-overlay');
-    if (popup) {
-        popup.remove();
+        const optOutInfo = document.querySelector('.opt-out-info');
+        if (optOutInfo) {
+            optOutInfo.textContent = 'Error';
+            optOutInfo.style.color = 'red';
+        }
     }
 }

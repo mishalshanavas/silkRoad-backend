@@ -1,3 +1,5 @@
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.views.decorators.http import require_POST
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseNotFound, HttpResponse
@@ -21,7 +23,8 @@ def contribute_instagram_id(request, sr_no, instagram_id):
     except Student.DoesNotExist:
         return HttpResponseNotFound("student not found")
     
-@require_POST
+@csrf_exempt
+@require_http_methods(["POST"])
 def toggle_opt_out(request, sr_no):
     if not authorized_user(request, sr_no):
         return HttpResponse("You are not allowed to perform this action.", status=403)
@@ -76,5 +79,4 @@ def confidential(request, sr_no=None):
        return HttpResponse("You are not allowed to perform this action.", status=403)
    
 def search(request):
-    return render(request, 'search.html') 
-        
+    return render(request, 'search.html')

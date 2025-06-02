@@ -80,12 +80,6 @@ h1 {
   margin-bottom: 2rem;
   font-weight: 400;
 }
-.search-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-  text-align: center;
-}
 
 .input-group {
   position: relative;
@@ -262,6 +256,23 @@ h1 {
   color: #000000;
 }
 
+.opt-out-info {
+    font-size: 0.75rem;
+    color: #999999;
+    margin-top: 1rem;
+    text-align:left;
+}
+
+.opt-out-info a {
+    color: #999999;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.opt-out-info a:hover {
+    color: #666666;
+}
+
 .search-btn {
   position: absolute;
   right: 0.5rem;
@@ -280,6 +291,7 @@ h1 {
   justify-content: center;
   font-size: 1.2rem;
 }
+
 .search-btn:hover {
   background-color: #333333;
   transform: translateY(-50%) scale(1.05);
