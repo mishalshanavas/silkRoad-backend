@@ -178,7 +178,7 @@ function createStudentDetailsHTML(student, dob, is1970Date, age) {
            </div>`
         : `<span style="color: #666;">Instagram ID not available</span>
            <button class="popup-submit" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem;" 
-           onclick="showInstagramContribution('${student.sr_no}')">Add ID</button>`;
+           onclick="showInstagramContribution('${student.sr_no}')">Contribute ID</button>`;
 
     const localityTags = [student.street, student.street2, student.district]
         .filter(Boolean)
@@ -386,10 +386,11 @@ function showInstagramContribution(sr_no) {
             <h3>Contribute Instagram ID</h3>
             <div class="ig-popup-desc">
                 ${isLoggedIn 
-                    ? `Contributing as <strong>${currentUser.email}</strong>` 
+                    ? `Contributing as <strong>${currentUser.email}</strong>
+                    <p style="color:#888; font-size:0.6rem"> Your contribution will be kept anonymous 🛡️</p>` 
                     : '<span> <a href="/sign_in" style="color:#888; text-decoration:none ">Login to contribute</a></span>'}
             </div>
-            <input type="text" id="popupInstagramInput" placeholder="Instagram ID" ${isLoggedIn ? '' : 'disabled'}>
+            <input type="text" id="popupInstagramInput" placeholder="Instagram ID without '@' " ${isLoggedIn ? '' : 'disabled'}>
             <div id="popupResponseMsg"></div>
             <button id="popupSubmitBtn" ${isLoggedIn ? '' : 'disabled'}>Submit</button>
             <button id="popupCancelBtn">Cancel</button>
@@ -409,6 +410,14 @@ async function handleInstagramSubmit(sr_no, popup) {
     
     if (!instagramID) {
         msg.textContent = 'Please enter an Instagram ID.';
+        msg.style.color = 'firebrick';
+        return;
+    }
+    
+    const igRegex = /^(?!.*\.\.)(?!.*\.$)[a-zA-Z0-9._]{1,30}$/;
+    if (!igRegex.test(instagramID) || instagramID.startsWith('.') || instagramID.endsWith('.')) {
+        msg.textContent = 'Kalikkunoda? Invalid Instagram ID.';
+        msg.style.color = 'firebrick';
         return;
     }
 
