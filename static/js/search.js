@@ -309,7 +309,7 @@ function updateAuthUI(user) {
         elements.loginBtn.href = '/sign-out';
     } else {
         elements.loginBtn.textContent = 'Login with Google';
-        elements.loginBtn.href = '/sign_in';
+        elements.loginBtn.href = '/sign_in?next=/search';
     }
 }
 
@@ -388,7 +388,7 @@ function showInstagramContribution(sr_no) {
                 ${isLoggedIn 
                     ? `Contributing as <strong>${currentUser.email}</strong>
                     <p style="color:#888; font-size:0.6rem"> Your contribution will be kept anonymous 🛡️</p>` 
-                    : '<span> <a href="/sign_in" style="color:#888; text-decoration:none ">Login to contribute</a></span>'}
+                    : '<span> <a href="/sign_in?next=/search" style="color:#888; text-decoration:none ">Login to contribute</a></span>'}
             </div>
             <input type="text" id="popupInstagramInput" placeholder="Instagram ID without '@' " ${isLoggedIn ? '' : 'disabled'}>
             <div id="popupResponseMsg"></div>
