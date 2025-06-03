@@ -213,12 +213,55 @@ function createStudentDetailsHTML(student, dob, is1970Date, age) {
                 ${dobSection}
             </div>
             <p class="opt-out-info"> 
-                <span class="opt-out-info"> <a href="#" onclick="toggleOptOut('${student.sr_no}')">Request to hide your data?</a></span>
+                <span class="opt-out-info"> <a href="#" onclick="confirmOptOut('${student.sr_no}')">Request to hide your data?</a></span>
             </p>
             <button class="clear-btn" onclick="clearSearch()">Clear Results</button>
             <div id="contribute-instagram-form" style="display:none; margin-top:10px;"></div>
         </div>`;
 }
+
+function confirmOptOut(srNo) {
+    // Custom popup for opt-out confirmation
+    const existingPopup = document.getElementById('optout-confirm-popup');
+    if (existingPopup) existingPopup.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'optout-confirm-popup';
+    Object.assign(popup.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100vw',
+        height: '100vh',
+        background: 'rgba(0,0,0,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: '10000'
+    });
+
+    popup.innerHTML = ` <div class="popup-card" style="background: #f9fafb; padding: 2rem 2.5rem; border-radius: 14px; box-shadow: 0 4px 24px #0002; max-width: 370px; text-align: center; font-family: inherit;">
+                            <h3 style="color: #222; font-size: 1.4rem; margin-bottom: 0.5em;">Hide Your Profile? 👻</h3>
+                            <div style="color: #444; font-size: 1rem; margin-bottom: 1.5em; line-height: 1.6;">
+                            Hiding your data means no one can find you—not even your future stalker 👀<br>
+                            Are you <em>that</em> shy or just antisocial? 😬<br>
+                            <span style="color:#c62828;">(Your crush is gonna think you dropped out 💀)</span>
+                            </div>
+                            <button id="optout-confirm-btn" style="background: #fff; color: #222; border: 1px solid #bbb; border-radius: 6px; padding: 0.6em 1.2em; margin-right: 1em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Yehh 🕵️‍♂️</button>
+                            <button id="optout-cancel-btn" style="background: #222; color: #fff; border: none; border-radius: 6px; padding: 0.6em 1.2em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Never Mind 😎</button>
+                        </div>`;
+
+    document.body.appendChild(popup);
+
+    document.getElementById('optout-confirm-btn').onclick = () => {
+        document.body.removeChild(popup);
+        toggleOptOut(srNo);
+    };
+    document.getElementById('optout-cancel-btn').onclick = () => {
+        document.body.removeChild(popup);
+    };
+}
+
 
 async function handleFormSubmit(e) {
     e.preventDefault();
