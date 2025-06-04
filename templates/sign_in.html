@@ -104,8 +104,7 @@
             // Redirect to the next URL or default page
             window.location.href = data.redirect_url || '{{ next }}' || '/';
           } else {
-            console.error('Authentication failed:', data.error);
-            alert('Authentication failed. Please try again.');
+            alert('Authentication failed: ' + data.error);
           }
         })
         .catch(error => {
