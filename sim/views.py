@@ -5,6 +5,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from silkApi.models import Student
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 @csrf_exempt
 def sign_in(request):
