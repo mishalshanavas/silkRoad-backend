@@ -433,4 +433,13 @@ h1 {
   .student-card {
     padding: 1.5rem;
   }
+  .navbar-links > li:not(#authLinks) {
+    display: none;
+  }
+  #userProfilePic {
+    display: none !important;
+  }
+  #loginBtn {
+    display: inline-block !important;
+  }
 }
