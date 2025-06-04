@@ -172,13 +172,19 @@ function createOptOutHTML(student) {
 }
 
 function createStudentDetailsHTML(student, dob, is1970Date, age) {
-    const instagramSection = student.Instagram_id 
-        ? `<div class="instagram-info">
+    let instagramSection;
+    if (student.Instagram_id) {
+        // Check if currentUser is the contributor
+        const isContributor = currentUser && student.contributor && currentUser.email === student.contributor;
+        instagramSection = `<div class="instagram-info">
             <a href="https://instagram.com/${student.Instagram_id.replace(" (Not verified)", "")}" target="_blank">@${student.Instagram_id}</a>
-           </div>`
-        : `<span style="color: #666;">Instagram ID not available</span>
+            ${isContributor ? `<button class="popup-submit" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem;" onclick="showInstagramContribution('${student.sr_no}')">Edit</button>` : ''}
+        </div>`;
+    } else {
+        instagramSection = `<span style="color: #666;">Instagram ID not available</span>
            <button class="popup-submit" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem;" 
            onclick="showInstagramContribution('${student.sr_no}')">Contribute ID</button>`;
+    }
 
     const localityTags = [student.street, student.street2, student.district]
         .filter(Boolean)

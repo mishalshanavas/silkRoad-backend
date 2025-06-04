@@ -23,7 +23,7 @@ def contribute_instagram_id(request, sr_no):
             return Response({'detail': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
 
         student.contributed_ig = instagram_id
-        if student.Instagram_id is None:
+        if student.Instagram_id is None or student.Instagram_id != instagram_id:
             student.Instagram_id = instagram_id + ' (Not verified)'
 
         student.contributor = request.session.get('user_data', {}).get('email', '')
@@ -65,7 +65,8 @@ def students_by_sr(request,sr_no):
                                          'opt_out',
                                          'street',
                                          'street2',
-                                         'district'
+                                         'district',
+                                         'contributor'
                                          ).get(sr_no=sr_no)
         return JsonResponse(student)
     except Student.DoesNotExist:
