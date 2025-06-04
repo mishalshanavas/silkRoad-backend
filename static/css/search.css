@@ -1,3 +1,13 @@
+:root {
+  --text: #000;
+  --muted: #444;
+  --muted-light: #666;
+  --bg: #fff;
+  --border: #e5e5e5;
+  --hover-bg: #f0f0f0;
+  --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -6,16 +16,22 @@
 
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--bg);
+  color: var(--text);
   line-height: 1.6;
   min-height: 100vh;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+}
+
+a, button, .suggestion, .loc-box {
+  cursor: pointer;
 }
 
 .navbar {
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--border);
   padding: 0 2rem;
-  background-color: #ffffff;
+  background-color: var(--bg);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -33,12 +49,11 @@ body {
 .navbar-logo {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #000000;
+  color: var(--text);
   letter-spacing: -0.02em;
   text-decoration: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease-out;
 }
-
 .navbar-logo:hover {
   opacity: 0.8;
 }
@@ -48,37 +63,37 @@ body {
   list-style: none;
   gap: 2rem;
 }
-
 .navbar-links a {
   text-decoration: none;
-  color: #666666;
+  color: var(--muted-light);
   font-weight: 400;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease-out;
 }
-
 .navbar-links a:hover {
-  color: #000000;
+  color: var(--text);
 }
 
 .search-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 5rem 2rem;
   text-align: center;
 }
 
 h1 {
   font-size: 2.5rem;
   font-weight: 600;
-  color: #000000;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin-bottom: 1rem;
 }
 
 .subtitle {
-  color: #666666;
+  color: var(--muted);
   font-size: 1.1rem;
-  margin-bottom: 2rem;
   font-weight: 400;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.005em;
 }
 
 .input-group {
@@ -92,10 +107,40 @@ h1 {
   padding: 1rem 1.5rem;
   padding-right: 4rem;
   font-size: 1rem;
-  border: 2px solid #e5e5e5;
+  border: 2px solid var(--border);
   border-radius: 50px;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease-out;
+}
+.search-box:focus {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
+
+.search-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.2s ease-out;
+}
+.search-btn:hover {
+  background-color: #333;
+  transform: translateY(-50%) scale(1.05);
+}
+.search-btn:focus-visible {
+  outline: 2px dashed var(--text);
+  outline-offset: 3px;
 }
 
 .suggestions {
@@ -103,8 +148,8 @@ h1 {
   top: 100%;
   left: 0;
   right: 0;
-  background-color: #ffffff;
-  border: 2px solid #e5e5e5;
+  background-color: var(--bg);
+  border: 2px solid var(--border);
   border-top: none;
   border-radius: 0 0 20px 20px;
   max-height: 200px;
@@ -117,22 +162,41 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  padding: 1rem 1.5rem;
+  transition: background-color 0.15s ease, transform 0.1s ease;
   border-bottom: 1px solid #f5f5f5;
+}
+.suggestion:hover {
+  background-color: var(--hover-bg);
+  transform: translateX(2px);
 }
 
 .student-card {
-  background-color: #ffffff;
-  border: 2px solid #e5e5e5;
+  background-color: var(--bg);
+  border: 2px solid var(--border);
   border-radius: 20px;
   padding: 2rem;
-  margin-top: 2rem;
+  margin: 2.5rem auto 0 auto;
   max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
   text-align: left;
+  transition: box-shadow 0.2s ease-out;
+}
+.student-card:hover {
+  box-shadow: var(--card-shadow);
+}
+
+.student-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+
+.student-info {
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  line-height: 1.8;
 }
 
 .social-links {
@@ -141,24 +205,43 @@ h1 {
   gap: 1rem;
 }
 
-.student-info {
-  text-align: left;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  line-height: 1.8;
+.social-id {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.social-id:last-child {
+  border-bottom: none;
+}
+.social-id a {
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.2s ease-out;
+}
+.social-id a:hover {
+  color: var(--muted);
+}
+.social-platform {
+  min-width: 80px;
+  font-weight: 500;
+  color: var(--muted-light);
 }
 
 .clear-btn {
-  background-color: transparent;
-  color: #666666;
-  border: 2px solid #e5e5e5;
+  background: transparent;
+  color: var(--muted-light);
+  border: 2px solid var(--border);
   border-radius: 25px;
   padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
   margin-top: 1rem;
+  transition: all 0.2s ease-out;
+}
+.clear-btn:hover {
+  color: var(--text);
+  border-color: var(--text);
 }
 
 .user-profile {
@@ -166,160 +249,87 @@ h1 {
   align-items: center;
   gap: 1rem;
 }
-
 .user-dp {
   width: 35px;
   height: 35px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #e5e5e5;
-}
-
-.student-name {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #000000;
-}
-
-.social-id {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.social-id:last-child {
-  border-bottom: none;
-}
-
-.social-platform {
-  min-width: 80px;
-  font-weight: 500;
-  color: #666666;
-}
-
-.social-id a {
-  color: #000000;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.social-id a:hover {
-  color: #666666;
+  border: 2px solid var(--border);
 }
 
 .age-info {
   display: inline-block;
   margin-left: 0.5rem;
   padding: 0.25rem 0.75rem;
-  background-color: #e5e5e5;
+  background-color: var(--border);
   border-radius: 12px;
   font-size: 0.9rem;
 }
 
 .privacy-notice {
+  color: var(--muted-light);
   text-align: left;
-  color: #666666;
 }
-
 .privacy-notice h3 {
+  color: var(--text);
   margin: 1rem 0;
-  color: #000000;
 }
-
 .privacy-notice small {
   display: block;
   margin: 1rem 0;
   font-style: italic;
+  font-weight: 300;
 }
 
 .opt-out {
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--border);
 }
-
 .opt-out-btn {
   background: none;
   border: none;
-  color: #666666;
-  cursor: pointer;
-  padding: 0;
+  color: var(--muted-light);
   font-size: 0.9rem;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease-out;
+  padding: 0;
 }
-
 .opt-out-btn:hover {
-  color: #000000;
+  color: var(--text);
 }
-
 .opt-out-info {
   font-size: 0.75rem;
-  color: #999999;
+  color: #999;
   margin-top: 1rem;
   text-align: left;
 }
-
 .opt-out-info a {
-  color: #999999;
+  color: #999;
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease-out;
 }
-
 .opt-out-info a:hover {
-  color: #666666;
-}
-
-.search-btn {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #000000;
-  color: #ffffff;
-  border: none;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-}
-
-.search-btn:hover {
-  background-color: #333333;
-  transform: translateY(-50%) scale(1.05);
+  color: var(--muted-light);
 }
 
 .locality {
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--border);
 }
-
 .loc-box {
   display: inline-block;
   margin-left: 0.2rem;
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 12px;
   font-size: 0.9rem;
-  padding: 0.4rem;
-  padding-top: 0.2rem;
-  padding-bottom: 0.2rem;
+  padding: 0.4rem 0.6rem;
+  transition: all 0.2s ease-out;
 }
-
 .loc-box:hover {
   background-color: #e8e8e8;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
-
-/* Container for wrapping boxes */
 .locality-tags {
   display: flex;
   flex-wrap: wrap;
@@ -335,14 +345,13 @@ h1 {
   box-shadow: 0 2px 16px #0002;
   font-family: inherit;
   color: #222;
-  animation: popup-fadein 0.18s;
+  animation: popup-fadein 0.18s ease-out;
 }
 #ig-contribute-popup h3 {
-  margin: 0 0 0.6em 0;
   font-size: 1.08em;
-  color: #111;
   font-weight: 600;
-  letter-spacing: 0.01em;
+  margin: 0 0 0.6em;
+  color: #111;
 }
 #ig-contribute-popup .ig-popup-desc {
   font-size: 0.97em;
@@ -359,7 +368,7 @@ h1 {
   background: #fafafa;
   color: #222;
   outline: none;
-  transition: border 0.18s;
+  transition: border 0.18s ease-out;
 }
 #ig-contribute-popup input[type="text"]:focus {
   border: 1.5px solid #222;
@@ -380,7 +389,7 @@ h1 {
   margin-right: 0.5em;
   background: #222;
   color: #fff;
-  transition: background 0.18s, color 0.18s;
+  transition: background 0.18s ease-out;
 }
 #ig-contribute-popup button#popupCancelBtn {
   background: #fff;
@@ -390,6 +399,26 @@ h1 {
 #ig-contribute-popup button:hover {
   background: #444;
   color: #fff;
+}
+
+.popup-submit {
+  background-color: var(--text);
+  color: var(--bg);
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95em;
+  font-weight: 600;
+  min-height: 2em;
+  min-width: 2.5em;
+  padding: 0.35em 1.2em;
+  transition: opacity 0.18s, background 0.18s;
+}
+
+.popup-submit:hover,
+.popup-submit:focus {
+  opacity: 0.8;
+  background: var(--muted);
 }
 @keyframes popup-fadein {
   from {
@@ -401,35 +430,15 @@ h1 {
     transform: scale(1);
   }
 }
-.popup-submit {
-  padding: 0.22em 0.7em;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.88em;
-  cursor: pointer;
-  background: #222;
-  color: #fff;
-  transition: background 0.18s, color 0.18s;
-  margin-left: 8px;
-  line-height: 1.2;
-  height: 2em;
-  min-width: 2.5em;
-}
 
-.popup-submit:hover {
-  background: #444;
-  color: #fff;
-}
-
+/* Mobile */
 @media (max-width: 768px) {
   .navbar {
     padding: 0 1rem;
   }
-
   .search-container {
     padding: 3rem 1rem;
   }
-
   .student-card {
     padding: 1.5rem;
   }
