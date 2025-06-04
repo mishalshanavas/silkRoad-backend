@@ -23,5 +23,5 @@
         "dest": "silkRoad/wsgi.py"
       }
     ],
-    "outputDirectory": "static"
+    "outputDirectory": "staticfiles"
 }
