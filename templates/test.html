@@ -1,54 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Test Instagram Contribution</title>
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    <style>
-        body { font-family: sans-serif; margin: 2em; }
-        input, button { padding: 0.5em; font-size: 1em; margin-right: 1em; }
-    </style>
-</head>
-<body>
-    <h2>Contribute Instagram ID</h2>
-    
-    <input type="text" id="instagramInput" placeholder="Enter Instagram ID">
-    <button onclick="submitInstagramID()">Submit</button>
+{% extends "base.html" %}
+{% block title %}silkRoad Test{% endblock %}
 
-    <p id="responseMessage"></p>
+{% block content %}
+<main class="test-container">
+  <h1>silkRoad Test</h1>
+  <p class="subtitle">This is a test page</p>
+{%endblock %}
 
-    <script>
-        function getCSRFToken() {
-            return document.querySelector('meta[name="csrf-token"]').content;
-        }
-
-        function submitInstagramID() {
-            const instagramID = document.getElementById("instagramInput").value.trim();
-            const sr_no = 224791;  // Change this to a real sr_no for testing
-
-            fetch(`/api/contribute/instagram/${sr_no}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken()
-                },
-                body: JSON.stringify({ instagram_id: instagramID })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const msg = document.getElementById("responseMessage");
-                if (data.success) {
-                    msg.style.color = "green";
-                    msg.textContent = "Instagram ID submitted successfully!";
-                } else {
-                    msg.style.color = "red";
-                    msg.textContent = "Error: " + (data.detail || JSON.stringify(data));
-                }
-            })
-            .catch(err => {
-                document.getElementById("responseMessage").textContent = "Request failed: " + err;
-            });
-        }
-    </script>
-</body>
-</html>

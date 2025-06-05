@@ -1,42 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>silkRoad Search</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/search.css">
-    <meta name="csrf-token" content="{{ csrf_token }}">
-</head>
-<body>
-  <nav class="navbar">
-    <div class="navbar-content">
-      <a href="/" class="navbar-logo">silkRoad</a>
-      <ul class="navbar-links">
-        <li><a href="/">Home</a></li>
-        <li><a href="/search/">Directory</a></li>
-        <li id="authLinks">
-          <div class="user-profile">
-            <img id="userProfilePic" class="user-dp" src="" alt="Profile" style="display: none;">
-            <a href="/sign_in?next=/search" class="login-btn" id="loginBtn">Login with Google</a>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </nav>
+{% extends "base.html" %}
+{% block title %}silkRoad Search{% endblock %}
 
-  <main class="search-container">
-    <h1>silkRoad Search</h1>
-    <p class="subtitle">Find your classmates on social media</p>
-    <form id="searchForm" autocomplete="off">
-      <div class="input-group">
-        <input class="search-box" type="text" id="searchBox" placeholder="Search by name..." autocomplete="off" inputmode="search" autocorrect="off" autocapitalize="off" autofocus/>
-        <button class="search-btn" type="submit">🔍</button>
-        <div id="suggestions" class="suggestions"></div>
-      </div>
-    </form>
-    <section id="studentDetails"></section>
-  </main>
+{% block content %}
+<main class="search-container">
+  <h1>silkRoad Search</h1>
+  <p class="subtitle">Find your classmates on social media</p>
+  <form id="searchForm" autocomplete="off">
+    <div class="input-group">
+      <input class="search-box" type="text" id="searchBox" placeholder="Search by name..." autocomplete="off" inputmode="search" autocorrect="off" autocapitalize="off" autofocus/>
+      <button class="search-btn" type="submit">🔍</button>
+      <div id="suggestions" class="suggestions"></div>
+    </div>
+  </form>
+  <section id="studentDetails"></section>
+</main>
+{% endblock %}
+
+{% block scripts %}
   <script src="/static/js/search.js"></script>
-</body>
-</html>
+{% endblock %}

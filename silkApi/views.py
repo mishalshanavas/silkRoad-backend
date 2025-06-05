@@ -3,6 +3,7 @@ from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse, HttpResponseNotFound, HttpResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.shortcuts import render
 from rest_framework import status
 from .models import Student
 from .serializers import ContributeInstagramIDSerializer
@@ -98,7 +99,6 @@ def confidential(request, sr_no=None):
        return HttpResponse("confidential data",)
    else:
        return HttpResponse("You are not allowed to perform this action.", status=403)
-from django.shortcuts import render
 
 @ensure_csrf_cookie
 def test(request):

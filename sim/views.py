@@ -10,6 +10,12 @@ from google.auth.transport import requests
 
 @csrf_exempt
 def sign_in(request):
+        # Check if user is already logged in
+    if 'user_data' in request.session:
+        next_url = request.GET.get('next', '/')
+        return redirect(next_url)
+    
+    # If not logged in, render the sign-in page
     next_url = request.GET.get('next', '/')
     return render(request, 'sign_in.html', {'next': next_url})
 

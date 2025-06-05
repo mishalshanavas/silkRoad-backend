@@ -1,7 +1,7 @@
 const API_BASE = '/api';
 
 // Cache DOM elements
-const elements = {
+const searchElements = {
     searchBox: document.getElementById('searchBox'),
     suggestions: document.getElementById('suggestions'),
     studentDetails: document.getElementById('studentDetails'),
@@ -13,12 +13,9 @@ let currentUser = null;
 let debounceTimer = null;
 let currentRequest = null; 
 
-document.addEventListener('DOMContentLoaded', checkAuthStatus);
 
-elements.searchBox.addEventListener('input', handleSearchInput);
-elements.searchForm.addEventListener('submit', handleFormSubmit);
-
-// Use event delegation for better performance
+searchElements.searchBox.addEventListener('input', handleSearchInput);
+searchElements.searchForm.addEventListener('submit', handleFormSubmit);
 document.addEventListener('click', handleGlobalClick);
 
 function handleSearchInput() {
@@ -30,11 +27,11 @@ function handleSearchInput() {
     }
 
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => fetchAutocomplete(query), 300);
+    debounceTimer = setTimeout(() => fetchAutocomplete(query), 100);
 }
 
 async function fetchAutocomplete(query) {
-    // Cancel previous request if still pending
+    // Cancel previous request if pending
     if (currentRequest) {
         currentRequest.abort();
     }
@@ -69,10 +66,8 @@ function displaySuggestions(students) {
         hideSuggestions();
         return;
     }
-
-    // Use DocumentFragment for better performance
     const fragment = document.createDocumentFragment();
-    
+
     students.forEach(student => {
         const div = document.createElement('div');
         div.className = 'suggestion';
@@ -84,9 +79,9 @@ function displaySuggestions(students) {
         fragment.appendChild(div);
     });
 
-    elements.suggestions.innerHTML = '';
-    elements.suggestions.appendChild(fragment);
-    elements.suggestions.style.display = 'block';
+    searchElements.suggestions.innerHTML = '';
+    searchElements.suggestions.appendChild(fragment);
+    searchElements.suggestions.style.display = 'block';
 }
 
 async function selectStudent(srNo) {
@@ -95,7 +90,7 @@ async function selectStudent(srNo) {
         if (response.ok) {
             const student = await response.json();
             displayStudentDetails(student);
-            elements.searchBox.value = student.name;
+            searchElements.searchBox.value = student.name;
             hideSuggestions();
         } else {
             console.error('Student detail API error:', response.status);
@@ -109,7 +104,6 @@ async function selectStudent(srNo) {
 
 // Memoized date calculations
 const dateCalculations = new Map();
-
 function calculateAge(dob) {
     if (dateCalculations.has(dob)) {
         return dateCalculations.get(dob).age;
@@ -123,7 +117,6 @@ function calculateAge(dob) {
     
     const daysUntilNext = getDaysUntilNextBirthday(dob);
     dateCalculations.set(dob, { age, daysUntilNext });
-    
     return age;
 }
 
@@ -147,11 +140,11 @@ function displayStudentDetails(student) {
     const age = (!is1970Date && student.date_of_birth) ? calculateAge(student.date_of_birth) : null;
 
     if (student.opt_out) {
-        elements.studentDetails.innerHTML = createOptOutHTML(student);
+        searchElements.studentDetails.innerHTML = createOptOutHTML(student);
         return;
     }
 
-    elements.studentDetails.innerHTML = createStudentDetailsHTML(student, dob, is1970Date, age);
+    searchElements.studentDetails.innerHTML = createStudentDetailsHTML(student, dob, is1970Date, age);
 }
 
 // Template functions for better maintainability
@@ -271,7 +264,7 @@ function confirmOptOut(srNo) {
 
 async function handleFormSubmit(e) {
     e.preventDefault();
-    const query = elements.searchBox.value.trim();
+    const query = searchElements.searchBox.value.trim();
     if (query.length === 0) return;
 
     try {
@@ -298,7 +291,7 @@ async function handleFormSubmit(e) {
 }
 
 function showNoResults() {
-    elements.studentDetails.innerHTML = `
+    searchElements.studentDetails.innerHTML = `
         <div class="student-card">
             <div class="no-results">
                 No student found with that name. Try searching for someone else!
@@ -316,50 +309,19 @@ function handleGlobalClick(e) {
     }
 
     // Hide suggestions when clicking outside
-    if (!elements.searchBox.contains(e.target) && !elements.suggestions.contains(e.target)) {
+    if (!searchElements.searchBox.contains(e.target) && !searchElements.suggestions.contains(e.target)) {
         hideSuggestions();
     }
 }
 
 function clearSearch() {
-    elements.searchBox.value = '';
+    searchElements.searchBox.value = '';
     hideSuggestions();
-    elements.studentDetails.innerHTML = '';
+    searchElements.studentDetails.innerHTML = '';
 }
 
 function hideSuggestions() {
-    elements.suggestions.style.display = 'none';
-}
-
-async function checkAuthStatus() {
-    try {
-        const response = await fetch('/auth-status');
-        if (response.ok) {
-            const userData = await response.json();
-            currentUser = userData.isAuthenticated ? {
-                name: userData.name,
-                profile_pic: userData.picture,
-                email: userData.email
-            } : null;
-        } else {
-            console.error('Error fetching auth status:', response.status);
-            currentUser = null;
-        }
-    } catch (error) {
-        console.error('Error checking auth status:', error);
-        currentUser = null;
-    }
-    updateAuthUI(currentUser);
-}
-
-function updateAuthUI(user) {
-    if (user) {
-        elements.loginBtn.textContent = user.name || 'Profile';
-        elements.loginBtn.href = '/sign-out';
-    } else {
-        elements.loginBtn.textContent = 'Login with Google';
-        elements.loginBtn.href = '/sign_in?next=/search';
-    }
+    searchElements.suggestions.style.display = 'none';
 }
 
 async function toggleOptOut(srNo) {

@@ -1,0 +1,16 @@
+<nav class="navbar">
+  <div class="navbar-content">
+    <a href="/" class="navbar-logo">silkRoad</a>
+    <ul class="navbar-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/search/">Directory</a></li>
+      <li id="authLinks">
+        <div class="user-profile">
+          <img id="userProfilePic" class="user-dp" src="" alt="Profile" style="display: none;">
+          <a href="/sign_in?next={{ request.path }}" class="login-btn" id="loginBtn">Login with Google</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+<script src="/static/js/navAuthStatus.js"></script>
