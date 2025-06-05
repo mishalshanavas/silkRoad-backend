@@ -1,0 +1,147 @@
+.navbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  background-color: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  transition: opacity 0.2s ease-out;
+}
+.navbar-logo:hover {
+  opacity: 0.8;
+}
+
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin-left: auto;
+  margin-right: 2rem;
+}
+.navbar-links a {
+  text-decoration: none;
+  color: var(--muted-light);
+  font-weight: 400;
+  transition: color 0.2s ease-out;
+}
+.navbar-links a:hover {
+  color: var(--text);
+}
+
+.user-profile {
+
+  padding-right: .5rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  min-height: 32px; /* Match the profile picture height */
+}
+
+.user-dp {
+  width: 36px;
+  height: 36px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+.user-dp:hover {
+  border-color: var(--text);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: all 0.2s ease-out;
+}
+
+/* Tooltip for signout */
+.user-dp-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.user-dp-wrapper .signout-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  background-color: var(--muted);
+  color: var(--text);
+  text-align: center;
+  border-radius: 4px;
+  padding: 0.3em 0.8em;
+  position: absolute;
+  z-index: 101;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity 0.08s;
+  font-size: 0.95rem;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.user-dp-wrapper:hover .signout-tooltip,
+.user-dp:focus + .signout-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.login-btn {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--bg);
+  transition: all 0.2s ease-out;
+}
+
+.login-btn:hover {
+  background-color: var(--muted);
+  border-color: var(--text);
+}
+
+.login-btn:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none;
+  }
+  
+  .navbar-content {
+    justify-content: space-between;
+  }
+  
+  .navbar {
+    padding: 0 1rem;
+  }
+  
+  .user-dp {
+    width: 32px;
+    height: 32px;
+    border-radius: 14px;
+  }
+  
+  .login-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}

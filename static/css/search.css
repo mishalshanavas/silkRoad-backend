@@ -27,52 +27,6 @@ body {
 a, button, .suggestion, .loc-box {
   cursor: pointer;
 }
-
-.navbar {
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  background-color: var(--bg);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.navbar-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 70px;
-}
-
-.navbar-logo {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.02em;
-  text-decoration: none;
-  transition: opacity 0.2s ease-out;
-}
-.navbar-logo:hover {
-  opacity: 0.8;
-}
-
-.navbar-links {
-  display: flex;
-  list-style: none;
-  gap: 2rem;
-}
-.navbar-links a {
-  text-decoration: none;
-  color: var(--muted-light);
-  font-weight: 400;
-  transition: color 0.2s ease-out;
-}
-.navbar-links a:hover {
-  color: var(--text);
-}
-
 .search-container {
   max-width: 600px;
   margin: 0 auto;
@@ -441,14 +395,5 @@ h1 {
   }
   .student-card {
     padding: 1.5rem;
-  }
-  .navbar-links > li:not(#authLinks) {
-    display: none;
-  }
-  #userProfilePic {
-    display: none !important;
-  }
-  #loginBtn {
-    display: inline-block !important;
   }
 }
