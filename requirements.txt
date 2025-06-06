@@ -18,3 +18,5 @@ pillow
 openpyxl
 qrcode
 whitenoise
+fpdf
+pypdf
