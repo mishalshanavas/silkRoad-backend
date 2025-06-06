@@ -8,6 +8,7 @@ from rest_framework import status
 from .models import Student
 from .serializers import ContributeInstagramIDSerializer
 
+#<---------------------------Search API----------------------------->
 @api_view(['POST'])
 @permission_classes([])  
 def contribute_instagram_id(request, sr_no):
@@ -93,16 +94,6 @@ def auto_complete(request):
         for student in students
     ]
     return JsonResponse(results, safe=False)
-
-def confidential(request, sr_no=None):
-   if authorized_user(request, sr_no):
-       return HttpResponse("confidential data",)
-   else:
-       return HttpResponse("You are not allowed to perform this action.", status=403)
-
-@ensure_csrf_cookie
-def test(request):
-    return render(request, 'test.html')
 
 def search(request):
     return render(request, 'search.html')

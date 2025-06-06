@@ -16,16 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from silkApi.views import students_by_sr, auto_complete, confidential, toggle_opt_out,contribute_instagram_id, search, test
+from silkApi.views import students_by_sr, auto_complete,toggle_opt_out,contribute_instagram_id, search
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/students/<str:sr_no>/', students_by_sr, name='student-detail'),
     path('api/autocomplete/', auto_complete, name='auto-complete'),
-    path('api/confidential/<str:sr_no>/', confidential, name='confidential'),
     path('api/toggle-opt-out/<str:sr_no>/', toggle_opt_out, name='toggle-opt-out'),
     path('api/contribute/instagram/<int:sr_no>/', contribute_instagram_id, name='contribute_instagram'),
-    path('test/', test, name='test'),
-    path('', include('sim.urls')),
     path('search/', search, name='search'),
+    
+    path('', include('sim.urls')),
+    path('', include('silkGenCertificate.urls')),
 ]

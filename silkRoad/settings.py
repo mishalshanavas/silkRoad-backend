@@ -43,15 +43,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
+    'whitenoise.runserver_nostatic',
     'silkApi',
     'sim',
-    'corsheaders',
-    'whitenoise.runserver_nostatic',  # Add this before 'django.contrib.staticfiles'
-]
+    'silkGenCertificate',
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this right after SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
