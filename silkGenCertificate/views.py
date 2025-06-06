@@ -1,44 +1,49 @@
-from django.shortcuts import render
-from django.http import HttpResponse, FileResponse
-from fpdf import FPDF
+from django.http import FileResponse
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from pypdf import PdfReader, PdfWriter
 import os
-from django.conf import settings
 from io import BytesIO
 
-# Create your views here.
 def ciscoCyberSec(request, name, date_str):
     template_path = os.path.join(os.path.dirname(__file__), 'CertificateTemplate', 'cisco_cyber_security.pdf')
     font_path = os.path.join(os.path.dirname(__file__), 'CertificateFonts', 'ArialBold.TTF')
+    
+    pdfmetrics.registerFont(TTFont('ArialBold', font_path))
     
     reader = PdfReader(template_path)
     writer = PdfWriter()
     page = reader.pages[0]
     w, h = float(page.mediabox.width), float(page.mediabox.height)
-    pdf = FPDF(unit="pt", format=(w, h))
-    pdf.add_page()
     
-    # Name
-    pdf.add_font("AR", "", font_path)
-    pdf.set_font("AR", size=36)
-    pdf.set_text_color(0, 81, 175)
-    x = (w - pdf.get_string_width(name)) / 2
-    pdf.set_xy(x+16, 184)
-    pdf.cell(0, 10, name)
-
-    # Whanna Date?
-    pdf.set_font("AR", size=16)
-    pdf.set_text_color(51, 51, 51)
-    pdf.set_xy(765, 550)
-    pdf.cell(0, 10, date_str)
-
+    # Create a new PDF overlay
     overlay_buffer = BytesIO()
-    pdf.output(overlay_buffer)
+    c = canvas.Canvas(overlay_buffer, pagesize=(w, h))
+    
+    # Add name
+    c.setFont("ArialBold", 36)
+    c.setFillColorRGB(0/255, 81/255, 175/255)  # Blue color
+    name_width = c.stringWidth(name, "ArialBold", 36)
+    x = (w - name_width) / 2
+    c.drawString(x+16, h-184, name)  # ReportLab coordinates from bottom-left
+    
+    # Add date
+    c.setFont("ArialBold", 16)
+    c.setFillColorRGB(51/255, 51/255, 51/255)  # Gray color
+    c.drawString(765, h-550, date_str)
+    
+    c.save()
     overlay_buffer.seek(0)
+    
+    # Merge the overlay with the template
     overlay = PdfReader(overlay_buffer)
     page.merge_page(overlay.pages[0])
     writer.add_page(page)
+    
+    # Write the output
     buffer = BytesIO()
     writer.write(buffer)
     buffer.seek(0)
+    
     return FileResponse(buffer, as_attachment=True, filename=f"{name}_cyber_certificate.pdf")

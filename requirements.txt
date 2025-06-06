@@ -20,3 +20,4 @@ qrcode
 whitenoise
 fpdf
 pypdf
+reportlab
