@@ -10,14 +10,10 @@ channels-redis
 daphne
 psycopg2-binary
 python-dotenv
-razorpay
 google-api-python-client
 google-auth
 requests
 pillow
-openpyxl
-qrcode
 whitenoise
-fpdf
 pypdf
 reportlab
