@@ -7,6 +7,8 @@ import os
 from io import BytesIO
 
 def ciscoCyberSec(request, name, date_str):
+    name = name.replace('%20', ' ')
+    date_str = date_str.replace('%20', ' ')
     template_path = os.path.join(os.path.dirname(__file__), 'CertificateTemplate', 'cisco_cyber_security.pdf')
     font_path = os.path.join(os.path.dirname(__file__), 'CertificateFonts', 'ArialBold.TTF')
     pdfmetrics.registerFont(TTFont('ArialBold', font_path))
