@@ -3,11 +3,6 @@ djangorestframework
 djangorestframework-simplejwt
 django-cors-headers
 django-redis
-celery
-redis
-channels
-channels-redis
-daphne
 psycopg2-binary
 python-dotenv
 google-api-python-client
