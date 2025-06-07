@@ -9,41 +9,50 @@ from io import BytesIO
 def ciscoCyberSec(request, name, date_str):
     template_path = os.path.join(os.path.dirname(__file__), 'CertificateTemplate', 'cisco_cyber_security.pdf')
     font_path = os.path.join(os.path.dirname(__file__), 'CertificateFonts', 'ArialBold.TTF')
-    
     pdfmetrics.registerFont(TTFont('ArialBold', font_path))
-    
     reader = PdfReader(template_path)
     writer = PdfWriter()
-    page = reader.pages[0]
-    w, h = float(page.mediabox.width), float(page.mediabox.height)
+    template_page = reader.pages[0]
     
-    # Create a new PDF overlay
+    # template page(PyPDF2 uses mediabox)
+    template_width = float(template_page.mediabox.width)
+    template_height = float(template_page.mediabox.height)
+    
+    # Create overlay canvas with SAME dimensions as template
     overlay_buffer = BytesIO()
-    c = canvas.Canvas(overlay_buffer, pagesize=(w, h))
+    overlay_canvas = canvas.Canvas(overlay_buffer, pagesize=(template_width, template_height))
     
-    # Add name
-    c.setFont("ArialBold", 36)
-    c.setFillColorRGB(0/255, 81/255, 175/255)  # Blue color
-    name_width = c.stringWidth(name, "ArialBold", 36)
-    x = (w - name_width) / 2
-    c.drawString(x+16, h-184, name)  # ReportLab coordinates from bottom-left
+    # Add name text
+    overlay_canvas.setFont("ArialBold", 36)
+    overlay_canvas.setFillColorRGB(0/255, 81/255, 175/255)  # Blue color
+    name_text_width = overlay_canvas.stringWidth(name, "ArialBold", 36)
     
-    # Add date
-    c.setFont("ArialBold", 16)
-    c.setFillColorRGB(51/255, 51/255, 51/255)  # Gray color
-    c.drawString(765, h-550, date_str)
+    overlay_canvas.saveState()
+    overlay_canvas.translate(240, (template_height/2) + 18)
+    overlay_canvas.rotate(90)
+    overlay_canvas.drawString(-name_text_width/2, 0, name)
+    overlay_canvas.restoreState()
+
+    # Wanna Date?
+    overlay_canvas.setFont("ArialBold", 16)
+    overlay_canvas.setFillColorRGB(51/255, 51/255, 51/255)
+    overlay_canvas.saveState()
+    overlay_canvas.translate(599, 799)
+    overlay_canvas.rotate(90)
+    overlay_canvas.drawString(0, 0, date_str)
+    overlay_canvas.restoreState()
     
-    c.save()
+    overlay_canvas.save()
     overlay_buffer.seek(0)
     
-    # Merge the overlay with the template
-    overlay = PdfReader(overlay_buffer)
-    page.merge_page(overlay.pages[0])
-    writer.add_page(page)
-    
-    # Write the output
+    # Merge template and overlay
+    overlay_page = PdfReader(overlay_buffer)
+    template_page.merge_page(overlay_page.pages[0])
+    writer.add_page(template_page)
+
+    # Write final PDF to buffer
     buffer = BytesIO()
     writer.write(buffer)
-    buffer.seek(0)
-    
-    return FileResponse(buffer, as_attachment=True, filename=f"{name}_cyber_certificate.pdf")
+    buffer.seek(0)  
+
+    return FileResponse(buffer, as_attachment=True, filename=f"{name}CyberCertificate.pdf")
