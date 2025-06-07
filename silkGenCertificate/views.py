@@ -4,13 +4,23 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from urllib.parse import unquote
 from pypdf import PdfReader, PdfWriter
+from django.shortcuts import render
+from datetime import datetime
 import os
 from io import BytesIO
 
-def ciscoCyberSec(request, name, date_str):
+def certificate(request):
+    return render(request, 'certificate.html')
+
+def ciscoCyberSec(request):
+    name = request.GET.get('name', 'Unknown')
+    date_str = request.GET.get('date_str', '01 Feb 2025')
+    if date_str != '01 Feb 2025':
+        date_str = unquote(unquote(date_str))
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        date_str = date_obj.strftime('%d %b %Y')
 
     name = unquote(unquote(name))
-    date_str = unquote(unquote(date_str))
     template_path = os.path.join(os.path.dirname(__file__), 'CertificateTemplate', 'cisco_cyber_security.pdf')
     font_path = os.path.join(os.path.dirname(__file__), 'CertificateFonts', 'ArialBold.TTF')
     pdfmetrics.registerFont(TTFont('ArialBold', font_path))
@@ -26,7 +36,7 @@ def ciscoCyberSec(request, name, date_str):
     overlay_buffer = BytesIO()
     overlay_canvas = canvas.Canvas(overlay_buffer, pagesize=(template_width, template_height))
     
-    # Add name text
+    # Add Name
     overlay_canvas.setFont("ArialBold", 36)
     overlay_canvas.setFillColorRGB(0/255, 81/255, 175/255)  # Blue color
     name_text_width = overlay_canvas.stringWidth(name, "ArialBold", 36)
