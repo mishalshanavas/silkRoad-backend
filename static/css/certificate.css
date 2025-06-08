@@ -90,11 +90,12 @@
 }
 
 .preview-container {
-    aspect-ratio: 1.414/1;
+    aspect-ratio: 1.4/1;
     background: #fff;
     border: 1px solid #e5e5e5;
     border-radius: 10px;
-    overflow: hidden;
+    overflow: scroll;
+    scrollbar-width: none;
 }
 
 .certificate-template {

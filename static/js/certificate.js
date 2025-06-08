@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewName = document.getElementById('previewName');
     const previewDate = document.getElementById('previewDate');
     const previewType = document.getElementById('previewType');
+    const pdfPreview = document.getElementById('pdfPreview'); 
 
     document.getElementById('fullName').addEventListener('input', (e) => {
         previewName.textContent = e.target.value || 'Your Name';
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const completionDate = document.getElementById('completionDate').value; 
         const certificateType = document.getElementById('certificatefor').value;   
         const url = `/api/certificate/${certificateType}/?name=${fullName}${useDefaultDateCheckbox.checked ? '' : '&date_str=' + completionDate}`;
+        
         fetch(url)
             .then(response => {
                 if (response.ok) {
@@ -40,23 +42,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             })
             .then(blob => {
-                const url = window.URL.createObjectURL(blob);
+                const pdfUrl = window.URL.createObjectURL(blob);
+                
+                // Show PDF in preview
+                if (pdfPreview) {
+                    pdfPreview.innerHTML = `
+                        <iframe src="${pdfUrl}" 
+                                width="100%" 
+                                height="380px" 
+                                style="border: 1px solid #ccc;">
+                        </iframe>
+                    `;
+                }
+                
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = pdfUrl;
                 a.download = `${fullName}_certificate.pdf`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
-                window.URL.revokeObjectURL(url);
+                
+                // Clean up the object URL after a delay to allow viewing
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(pdfUrl);
+                }, 300000); // 5 minutes
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
+                if (pdfPreview) {
+                    pdfPreview.innerHTML = '<p style="color: red;">Error generating certificate. Please try again.</p>';
+                }
             });
     });
     
     useDefaultDateCheckbox.addEventListener('change', function() {
         if (this.checked) {
-            
             completionDateInput.disabled = true;
             completionDateInput.required = false;
         } else {
