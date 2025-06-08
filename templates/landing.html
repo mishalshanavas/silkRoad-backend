@@ -1,35 +1,25 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Welcome to silkRoad{% endblock %}
 
 {% block head %}
-    <link rel="stylesheet" href="/static/css/landing.css">
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+    <script src="{% static 'js/landing.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="/" class="navbar-logo">silkRoad</a>
-            <ul class="navbar-links">
-                <li><a href="/" class="active">Home</a></li>
-                <li><a href="/search/" >Directory</a></li>
-                <li><a href="/certificate/">Certificates</a></li>
-                <li><a href="#">About</a></li>
-            </ul>
-        </div>
-    </nav>
-    
     <main class="landing-container">
         <div class="hero-section">
             <h1>Welcome to silkRoad</h1>
             <p class="hero-subtitle">Connect with your classmates like never before</p>
             <div class="hero-stats">
                 <div class="stat-item">
-                    <span class="stat-number" id="studentCount">0</span>
+                    <span class="stat-number" id="studentCount" data-count="{{ total_students }}">0</span>
                     <span class="stat-label">Students</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number" id="departmentCount">0</span>
+                    <span class="stat-number" id="departmentCount" data-count="{{ total_departments }}">0</span>
                     <span class="stat-label">Departments</span>
                 </div>
             </div>
@@ -114,7 +104,7 @@
                         <li>🔄 Real-time preview</li>
                         <li>📥 Easy download & sharing</li>
                     </ul>
-                    <a href="../certificate/certificate.html" class="feature-cta">Generate Certificate</a>
+                    <a href="/certificate/" class="feature-cta">Generate Certificate</a>
                 </div>
             </div>
         </section>
