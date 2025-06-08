@@ -91,7 +91,7 @@ DATABASES = {
         'NAME': 'studentData',
         'USER': 'studentData_owner',
         'PASSWORD': 'npg_MLdTR0HjfmB8',
-        'HOST': 'ep-rapid-wildflower-a19kw674.ap-southeast-1.aws.neon.tech',
+        'HOST': 'ep-rapid-wildflower-a19kw674-pooler.ap-southeast-1.aws.neon.tech',
         'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',
