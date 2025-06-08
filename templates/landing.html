@@ -8,34 +8,43 @@
 {% endblock %}
 
 {% block content %}
-<section class="hero-section">
-    <div class="hero-content">
-        <div class="hero-badge">Trusted by Leading Institutions</div>
-        <h1 class="hero-title">Revolutionizing Certificate Management with Blockchain</h1>
-        <p class="hero-subtitle">silkRoad transforms how organizations create, manage, and verify certificates using cutting-edge blockchain technology. Join thousands of institutions in the future of secure certification.</p>
-        <div class="cta-buttons">
-            <a href="/certificate/" class="cta-button primary-cta">Generate Certificate</a>
-            <a href="/search/" class="cta-button secondary-cta">Verify Certificate</a>
-        </div>
-        <div class="stats-container">
+<main class="landing-container">
+    <div class="hero-section">
+        <h1>Welcome to silkRoad</h1>
+        <p class="hero-subtitle">Connect with your classmates like never before</p>
+        <div class="hero-stats">
             <div class="stat-item">
-                <span class="stat-number">50,000+</span>
-                <span class="stat-label">Registered Users</span>
+                <span class="stat-number" id="studentCount">50,000+</span>
+                <span class="stat-label">Students</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">100,000+</span>
-                <span class="stat-label">Certificates Generated</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">99.9%</span>
-                <span class="stat-label">Verification Success</span>
+                <span class="stat-number" id="departmentCount">15+</span>
+                <span class="stat-label">Departments</span>
             </div>
         </div>
+        <a href="/search/" class="cta-button">Search Directory</a>
     </div>
-    <div class="hero-image">
-        <img src="/static/images/certificate-hero.svg" alt="Certificate Management" class="floating-animation">
-    </div>
-</section>
+
+    <section class="features-section">
+        <h2>Why silkRoad?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Easy Search</h3>
+                <p>Find your classmates quickly with our smart search system</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤝</div>
+                <h3>Connect Instantly</h3>
+                <p>Access social media profiles with just one click</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Privacy First</h3>
+                <p>Your data is protected and only shared with your consent</p>
+            </div>
+        </div>
+    </section>
 
 <section class="trusted-by">
     <div class="section-container">
