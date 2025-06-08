@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to silkRoad{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/landing.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Welcome to silkRoad</h1>
+        <p class="hero-subtitle">Your one-stop platform for certificate generation and verification, powered by cutting-edge technology and secure blockchain integration.</p>
+        <div class="cta-buttons">
+            <a href="/certificate/" class="cta-button primary-cta">Generate Certificate</a>
+            <a href="/search/" class="cta-button secondary-cta">Verify Certificate</a>
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <h2 class="section-title">Our Features</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-certificate"></i>
+            </div>
+            <h3 class="feature-title">Certificate Generation</h3>
+            <p class="feature-description">Create professional certificates with our easy-to-use platform. Customize templates and generate high-quality certificates in minutes.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="feature-title">Certificate Verification</h3>
+            <p class="feature-description">Instantly verify the authenticity of certificates using our secure blockchain-based verification system.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3 class="feature-title">Secure & Reliable</h3>
+            <p class="feature-description">Built with cutting-edge security measures to ensure your certificates are tamper-proof and trustworthy.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3 class="feature-title">User Management</h3>
+            <p class="feature-description">Easily manage your certificates, track their status, and control access with our intuitive user management system.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-cloud"></i>
+            </div>
+            <h3 class="feature-title">Cloud Storage</h3>
+            <p class="feature-description">All your certificates are securely stored in the cloud, accessible anytime, anywhere.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h3 class="feature-title">Instant Access</h3>
+            <p class="feature-description">Generate and verify certificates instantly, saving time and streamlining your workflow.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
