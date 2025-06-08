@@ -329,7 +329,7 @@ async function toggleOptOut(srNo) {
     
     if (!currentUser) {
         if (optOutInfo) {
-            optOutInfo.textContent = 'Unauthorized login with your account ';
+            optOutInfo.textContent = 'Unauthorized: Login with your own account to opt out.';
             optOutInfo.style.color = 'red';
         }
         return;

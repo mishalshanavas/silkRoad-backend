@@ -10,8 +10,16 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-    {% include "navbar.html" %}
-    {% block content %}{% endblock %}
-    {% block scripts %}{% endblock %}
+    <div class="site" style="min-height: 100vh;" >
+        {% include "navbar.html" %}
+        {% block content %}{% endblock %}
+        {% block scripts %}{% endblock %}
+    </div>
+    <footer style="position: sticky; top: 100%;">
+        <div class="footer-content">
+            <p style="font-size: .4rem; font-family: Inter; text-align: center;">&copy; 2025 silkRoad. All rights reserved.</p>
+            <p style="font-size: .5rem; font-family: Inter; text-align: center;">This site works purely on black magic Fr 🧙‍♀️✨</p>
+        </div>
+    </footer>
 </body>
 </html>
