@@ -1,21 +1,26 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Function to animate counting up to a target number
     function animateCount(element, target) {
-        let current = 0;
         const duration = 2000; // 2 seconds
-        const steps = 50;
-        const increment = target / steps;
-        const interval = duration / steps;
+        const startTime = performance.now();
+        const startValue = 0;
         
-        const counter = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                element.textContent = target;
-                clearInterval(counter);
-            } else {
-                element.textContent = Math.round(current);
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function for smooth animation
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const current = Math.round(startValue + (target - startValue) * easeOutQuart);
+            
+            element.textContent = current.toLocaleString();
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
             }
-        }, interval);
+        }
+        
+        requestAnimationFrame(update);
     }
 
     // Get counter elements
