@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/contribute/instagram/<int:sr_no>/', contribute_instagram_id, name='contribute_instagram'),
     path('search/', search, name='search'),
     
+    path('', include('core.urls')),  # Landing page and main site pages
     path('', include('sim.urls')),
     path('', include('silkGenCertificate.urls')),
 ]
