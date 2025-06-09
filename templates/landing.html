@@ -1,74 +1,170 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Welcome to silkRoad{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/css/landing.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+    <script src="{% static 'js/landing.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
-<section class="hero-section">
-    <div class="hero-content">
-        <h1 class="hero-title">Welcome to silkRoad</h1>
-        <p class="hero-subtitle">Your one-stop platform for certificate generation and verification, powered by cutting-edge technology and secure blockchain integration.</p>
-        <div class="cta-buttons">
-            <a href="/certificate/" class="cta-button primary-cta">Generate Certificate</a>
-            <a href="/search/" class="cta-button secondary-cta">Verify Certificate</a>
-        </div>
-    </div>
-</section>
-
-<section class="features-section">
-    <h2 class="section-title">Our Features</h2>
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-certificate"></i>
+    <main class="landing-container">
+        <div class="hero-section">
+            <h1>Welcome to silkRoad</h1>
+            <p class="hero-subtitle">Connect with your classmates like never before</p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="studentCount" data-count="{{ total_students }}">0</span>
+                    <span class="stat-label">Students</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="departmentCount" data-count="{{ total_departments }}">0</span>
+                    <span class="stat-label">Departments</span>
+                </div>
             </div>
-            <h3 class="feature-title">Certificate Generation</h3>
-            <p class="feature-description">Create professional certificates with our easy-to-use platform. Customize templates and generate high-quality certificates in minutes.</p>
+            <a href="/search/" class="cta-button">Search Directory</a>
         </div>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-search"></i>
+        <section class="features-section">
+            <h2>Why silkRoad?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Easy Search</h3>
+                    <p>Find your classmates quickly with our smart search system</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤝</div>
+                    <h3>Connect Instantly</h3>
+                    <p>Access social media profiles with just one click</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Your data is protected and only shared with your consent</p>
+                </div>
             </div>
-            <h3 class="feature-title">Certificate Verification</h3>
-            <p class="feature-description">Instantly verify the authenticity of certificates using our secure blockchain-based verification system.</p>
-        </div>
+        </section>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-shield-alt"></i>
+        <section class="feature-spotlight" id="search-spotlight">
+            <div class="spotlight-content">
+                <div class="spotlight-text">
+                    <h2>Advanced Student Search</h2>
+                    <p class="spotlight-description">Our intelligent search system makes finding your classmates easier than ever. Start typing a name and watch as instant suggestions appear, complete with department information.</p>
+                    <ul class="feature-list">
+                        <li>🎯 Real-time search suggestions</li>
+                        <li>📚 Department-wise filtering</li>
+                        <li>👥 Comprehensive student profiles</li>
+                        <li>📱 Direct social media links</li>
+                    </ul>
+                    <a href="/search/" class="feature-cta">Try Student Search</a>
+                </div>
+                <div class="spotlight-image search-demo">
+                    <div class="browser-mockup">
+                        <div class="search-demo-content">
+                            <input type="text" placeholder="Search by name..." disabled>
+                            <div class="demo-suggestions">
+                                <div class="demo-suggestion">
+                                    <span>John Smith</span>
+                                    <span class="demo-department">Computer Science</span>
+                                </div>
+                                <div class="demo-suggestion">
+                                    <span>John Doe</span>
+                                    <span class="demo-department">Engineering</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <h3 class="feature-title">Secure & Reliable</h3>
-            <p class="feature-description">Built with cutting-edge security measures to ensure your certificates are tamper-proof and trustworthy.</p>
-        </div>
+        </section>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-users"></i>
+        <section class="feature-spotlight reverse" id="certificate-spotlight">
+            <div class="spotlight-content">
+                <div class="spotlight-image certificate-demo">
+                    <div class="certificate-mockup">
+                        <div class="certificate-preview-demo">
+                            <h3>Certificate of Achievement</h3>
+                            <div class="certificate-preview-content">
+                                <p>This certifies that</p>
+                                <p class="preview-name">John Smith</p>
+                                <p>has successfully completed</p>
+                                <p class="preview-course">Web Development Fundamentals</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="spotlight-text">
+                    <h2>Certificate Generation</h2>
+                    <p class="spotlight-description">Create professional certificates in seconds. Perfect for course completions, achievements, and participation recognition.</p>
+                    <ul class="feature-list">
+                        <li>🎨 Beautiful certificate templates</li>
+                        <li>⚡ Instant generation</li>
+                        <li>🔄 Real-time preview</li>
+                        <li>📥 Easy download & sharing</li>
+                    </ul>
+                    <a href="/certificate/" class="feature-cta">Generate Certificate</a>
+                </div>
             </div>
-            <h3 class="feature-title">User Management</h3>
-            <p class="feature-description">Easily manage your certificates, track their status, and control access with our intuitive user management system.</p>
-        </div>
+        </section>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-cloud"></i>
+        <section class="feature-spotlight" id="community-spotlight">
+            <div class="spotlight-content">
+                <div class="spotlight-text">
+                    <h2>Building Connections</h2>
+                    <p class="spotlight-description">silkRoad is more than just a directory - it's a platform for building meaningful connections with your peers.</p>
+                    <ul class="feature-list">
+                        <li>🌐 Cross-department networking</li>
+                        <li>🤝 Professional connections</li>
+                        <li>📊 Department insights</li>
+                        <li>🔔 Stay updated with classmates</li>
+                    </ul>
+                    <a href="/search/" class="feature-cta">Join the Community</a>
+                </div>
+                <div class="spotlight-image community-demo">
+                    <div class="stats-mockup">
+                        <div class="stats-card">
+                            <div class="stats-number">500+</div>
+                            <div class="stats-label">Active Students</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-number">15+</div>
+                            <div class="stats-label">Departments</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-number">1000+</div>
+                            <div class="stats-label">Connections Made</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <h3 class="feature-title">Cloud Storage</h3>
-            <p class="feature-description">All your certificates are securely stored in the cloud, accessible anytime, anywhere.</p>
-        </div>
+        </section>
+    </main>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-clock"></i>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-sections">
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/search/">Student Directory</a></li>
+                        <li><a href="/certificate/">Certificates</a></li>
+                        <li><a href="#">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
             </div>
-            <h3 class="feature-title">Instant Access</h3>
-            <p class="feature-description">Generate and verify certificates instantly, saving time and streamlining your workflow.</p>
+            <div class="footer-bottom">
+                <p>&copy; 2025 silkRoad. All rights reserved.</p>
+            </div>
         </div>
-    </div>
-</section>
+    </footer>
 {% endblock %}
