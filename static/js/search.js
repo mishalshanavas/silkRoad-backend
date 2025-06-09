@@ -327,14 +327,7 @@ function hideSuggestions() {
 async function toggleOptOut(srNo) {
     const optOutInfo = document.querySelector('.opt-out-info');
     
-    if (!currentUser) {
-        if (optOutInfo) {
-            optOutInfo.textContent = 'Unauthorized: Login with your own account to opt out.';
-            optOutInfo.style.color = 'red';
-        }
-        return;
-    }
-
+    
     try {
         const response = await fetch(`${API_BASE}/toggle-opt-out/${srNo}/`, {
             method: 'POST',
@@ -343,7 +336,7 @@ async function toggleOptOut(srNo) {
         });
 
         if (!response.ok) {
-            const errorMsg = response.status === 401 || response.status === 403 ? 'Unauthorized' : 'Error';
+            const errorMsg = response.status === 401 || response.status === 403 ? 'Unauthorized signin with your own account 😬' : 'Error';
             if (optOutInfo) {
                 optOutInfo.textContent = errorMsg;
                 optOutInfo.style.color = 'red';
