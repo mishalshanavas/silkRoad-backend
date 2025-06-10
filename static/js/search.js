@@ -240,7 +240,7 @@ function confirmOptOut(srNo) {
     });
 
     popup.innerHTML = ` <div class="popup-card" style="background: #f9fafb; padding: 2rem 2.5rem; border-radius: 14px; box-shadow: 0 4px 24px #0002; max-width: 370px; text-align: center; font-family: inherit;">
-                            <h3 style="color: #222; font-size: 1.4rem; margin-bottom: 0.5em;">Hide Your Profile? 👻</h3>
+                            <h3 style="color: #222; font-size: 1.4rem; margin-bottom: 0.5em;">Hide Your Profile? </h3>
                             <div style="color: #444; font-size: 1rem; margin-bottom: 1.5em; line-height: 1.6;">
                             Hiding your data means no one can find you—not even your future stalker 👀<br>
                             Are you <em>that</em> shy or just antisocial? 😬<br>

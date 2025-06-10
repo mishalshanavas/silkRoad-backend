@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.shortcuts import render
 from rest_framework import status
 from .models import Student
+import datetime
 from .serializers import ContributeInstagramIDSerializer
 
 #<---------------------------Search API----------------------------->
@@ -94,6 +95,33 @@ def auto_complete(request):
         for student in students
     ]
     return JsonResponse(results, safe=False)
+
+def upcoming_birthday(request):
+    today = datetime.date.today()
+    upcoming_bdays = []
+
+    for i in range(7):
+        check_date = today + datetime.timedelta(days=i)
+        students = Student.objects.filter(
+            date_of_birth__month=check_date.month,
+            date_of_birth__day=check_date.day,
+            #opt_out=False  | uncomment to exclude opted-out students (ipppo excluded alla)
+        )
+        
+        for student in students:
+            age = check_date.year - student.date_of_birth.year
+
+            upcoming_bdays.append({
+                'name': student.name,
+                'sr_no': student.sr_no,
+                'department': student.department,
+                'date_of_birth': student.date_of_birth,
+                'days_until': i,
+                'turning_age': age,
+                'birthday_date': f"{check_date.day}/{check_date.month}"
+            })
+    upcoming_bdays = sorted(upcoming_bdays, key=lambda x: x['days_until'])[:8]
+    return JsonResponse({"students": upcoming_bdays})
 
 def search(request):
     return render(request, 'search.html')
