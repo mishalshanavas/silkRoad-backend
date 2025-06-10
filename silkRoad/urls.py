@@ -20,10 +20,12 @@ from silkApi import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('',views.home, name='home'),
     path('api/', include('silkApi.urls')),
     path('search/', views.search, name='search'), 
-
-    path('', include('core.urls')),  # Landing page and main site pages
     path('', include('sim.urls')),
     path('', include('silkGenCertificate.urls')),
+
+
+    path('test/', views.test, name='test'), #testing purposes 
 ]

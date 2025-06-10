@@ -8,6 +8,7 @@ from rest_framework import status
 from .models import Student
 import datetime
 from .serializers import ContributeInstagramIDSerializer
+from collections import defaultdict
 
 #<---------------------------Search API----------------------------->
 @api_view(['POST'])
@@ -100,14 +101,13 @@ def upcoming_birthday(request):
     today = datetime.date.today()
     upcoming_bdays = []
 
-    for i in range(7):
-        check_date = today + datetime.timedelta(days=i)
+    for i in range(100):  # chane back to 15 after testing
+        check_date = today + datetime.timedelta(days=i) 
         students = Student.objects.filter(
             date_of_birth__month=check_date.month,
             date_of_birth__day=check_date.day,
             #opt_out=False  | uncomment to exclude opted-out students (ipppo excluded alla)
         )
-        
         for student in students:
             age = check_date.year - student.date_of_birth.year
 
@@ -120,8 +120,29 @@ def upcoming_birthday(request):
                 'turning_age': age,
                 'birthday_date': f"{check_date.day}/{check_date.month}"
             })
-    upcoming_bdays = sorted(upcoming_bdays, key=lambda x: x['days_until'])[:8]
-    return JsonResponse({"students": upcoming_bdays})
+    grouped = defaultdict(list)
+    for bday in upcoming_bdays:
+        grouped[bday['days_until']].append(bday)
+
+    # Sort by days_until and include all students for the last included day
+    result = []
+    count = 0
+    for days_until in sorted(grouped.keys()):
+        group = grouped[days_until]
+        result.extend(group)
+        
+        count += len(group)
+        if count >= 99: # chane back to 110 after testing
+            break
+
+    return JsonResponse({"students": result})
+
+def home(request):
+    return render(request, 'landing.html')
 
 def search(request):
     return render(request, 'search.html')
+
+
+def test(request):
+    return render(request, 'test.html')

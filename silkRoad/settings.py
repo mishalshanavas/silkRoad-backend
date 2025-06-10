@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'silkApi',
     'sim',
     'silkGenCertificate',
-    'core',
     ]
 
 MIDDLEWARE = [
