@@ -101,7 +101,7 @@ def upcoming_birthday(request):
     today = datetime.date.today()
     upcoming_bdays = []
 
-    for i in range(100):  # chane back to 15 after testing
+    for i in range(15):
         check_date = today + datetime.timedelta(days=i) 
         students = Student.objects.filter(
             date_of_birth__month=check_date.month,
@@ -124,7 +124,7 @@ def upcoming_birthday(request):
     for bday in upcoming_bdays:
         grouped[bday['days_until']].append(bday)
 
-    # Sort by days_until and include all students for the last included day
+    #to  include all sudents at the last day
     result = []
     count = 0
     for days_until in sorted(grouped.keys()):
@@ -132,7 +132,7 @@ def upcoming_birthday(request):
         result.extend(group)
         
         count += len(group)
-        if count >= 99: # chane back to 110 after testing
+        if count >= 10: 
             break
 
     return JsonResponse({"students": result})

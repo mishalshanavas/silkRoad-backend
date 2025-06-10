@@ -213,6 +213,27 @@ body {
     animation: glow 2s ease-in-out infinite alternate;
 }
 
+/* Add these to your bday.css file */
+.birthday-badge {
+    margin-left: 8px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.today-celebration {
+    font-weight: 700;
+    font-size: 18px;
+    text-shadow: 0 0 12px rgba(255,255,255,0.5);
+}
+
+.days-remaining {
+    font-weight: 500;
+    color: #555;
+}
 @keyframes glow {
     0% { text-shadow: 0 0 8px rgba(255, 255, 255, 0.3); }
     100% { text-shadow: 0 0 16px rgba(255, 255, 255, 0.6); }

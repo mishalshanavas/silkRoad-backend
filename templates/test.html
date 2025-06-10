@@ -1,108 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Birthday Tracker</title>
-    <link rel="stylesheet" href="../static/css/bday.css">
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1 class="title">Birthday Tracker</h1>
-            <p class="subtitle">Student birthdays and celebrations</p>
-        </div>
-
+<link rel="stylesheet" href="../static/css/bday.css">
+<div class="container">
         <div class="section">
-            <div class="today-birthdays">
-                <div class="today-header">
-                Today's Birthdays
-                </div>
-                <div id="todayBirthdays">
-                    <div class="loading">Loading today's birthdays...</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2 class="section-title">Upcoming Birthdays</h2>
-            <div class="birthday-list" id="upcomingBirthdays">
-                <div class="loading">Loading upcoming birthdays...</div>
+            <h2 class="section-title">Birthdays</h2>
+            <div class="birthday-list" id="allBirthdays">
+                <div class="loading">Loading birthdays...</div>
             </div>
         </div>
     </div>
+<script src="../static/js/bday.js"></script>
 
-    <script>
-        async function fetchBirthdays() {
-            try {
-                const response = await fetch('/api/upcoming-birthday');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch birthdays');
-                }
-                const data = await response.json();
-                displayBirthdays(data.students);
-            } catch (error) {
-                console.error('Error fetching birthdays:', error);
-                document.getElementById('todayBirthdays').innerHTML = 
-                    '<div class="empty-state">Failed to load birthdays</div>';
-                document.getElementById('upcomingBirthdays').innerHTML = 
-                    '<div class="empty-state">Failed to load birthdays</div>';
-            }
-        }
-
-        function displayBirthdays(students) {
-            const todayBirthdays = students.filter(student => student.days_until === 0);
-            const upcomingBirthdays = students.filter(student => student.days_until > 0);
-
-            // Display today's birthdays
-            const todayContainer = document.getElementById('todayBirthdays');
-            if (todayBirthdays.length === 0) {
-                todayContainer.innerHTML = '<div class="empty-state">No birthdays today</div>';
-            } else {
-                todayContainer.innerHTML = todayBirthdays.map(student => `
-                    <div class="birthday-item today">
-                        <div class="date-info">
-                            <div class="date-day">${student.birthday_date.split('/')[0]}</div>
-                            <div class="date-month">${getMonthName(student.birthday_date.split('/')[1])}</div>
-                        </div>
-                        <div class="student-info">
-                            <div class="student-name">${student.name}</div>
-                            <div class="student-detail">${student.department} • Turning ${student.turning_age}</div>
-                        </div>
-                        <div class="days-until">TODAY!</div>
-                    </div>
-                `).join('');
-            }
-
-            // Display upcoming birthdays
-            const upcomingContainer = document.getElementById('upcomingBirthdays');
-            if (upcomingBirthdays.length === 0) {
-                upcomingContainer.innerHTML = '<div class="empty-state">No upcoming birthdays</div>';
-            } else {
-                upcomingContainer.innerHTML = upcomingBirthdays.map(student => `
-                    <div class="birthday-item">
-                        <div class="date-info">
-                            <div class="date-day">${student.birthday_date.split('/')[0]}</div>
-                            <div class="date-month">${getMonthName(student.birthday_date.split('/')[1])}</div>
-                        </div>
-                        <div class="student-info">
-                            <div class="student-name">${student.name}</div>
-                            <div class="student-detail">${student.department} • Turning ${student.turning_age}</div>
-                        </div>
-                        <div class="days-until">${student.days_until} day${student.days_until > 1 ? 's' : ''}</div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function getMonthName(monthNumber) {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return months[parseInt(monthNumber) - 1];
-        }
-
-        // Load birthdays when page loads
-        document.addEventListener('DOMContentLoaded', fetchBirthdays);
-    </script>
-</body>
-</html>
