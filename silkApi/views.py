@@ -58,24 +58,30 @@ def toggle_opt_out(request, sr_no):
     except Student.DoesNotExist:
         return HttpResponseNotFound("student not found")
 
-def students_by_sr(request,sr_no):
+def get_student_data(sr_no):
+    """Helper function to get student data by sr_no"""
     try:
         student = Student.objects.values('name',
-                                         'sr_no',
-                                         'department',
-                                         'date_of_birth',
-                                         'Instagram_id',
-                                         'father_mobile',
-                                         'opt_out',
-                                         'street',
-                                         'street2',
-                                         'district',
-                                         'contributor'
-                                         ).get(sr_no=sr_no)
-        return JsonResponse(student)
+                                       'sr_no',
+                                       'department',
+                                       'date_of_birth',
+                                       'Instagram_id',
+                                       'father_mobile',
+                                       'opt_out',
+                                       'street',
+                                       'street2',
+                                       'district',
+                                       'contributor'
+                                       ).get(sr_no=sr_no)
+        return student, None
     except Student.DoesNotExist:
-        return HttpResponseNotFound("student not found")
+        return None, "Student not found"
 
+def students_by_sr(request,sr_no):
+    student_data, error_message = get_student_data(sr_no)
+    if error_message:
+        return HttpResponseNotFound("student not found")
+    return JsonResponse(student_data)
 
 def auto_complete(request):
     query = request.GET.get('q', '')
@@ -140,9 +146,16 @@ def upcoming_birthday(request):
 def home(request):
     return render(request, 'landing.html')
 
-def search(request):
-    return render(request, 'search.html')
 
+def search(request):
+    student_data = None
+    error_message = None
+    sr_no = request.GET.get('sr_no', '').strip()
+    
+    if sr_no:
+        student_data, error_message = get_student_data(sr_no)
+
+    return render(request, 'search.html', {'initial_student': student_data})
 
 def test(request):
     return render(request, 'test.html')
