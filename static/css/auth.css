@@ -105,7 +105,7 @@
   text-decoration: none;
   color: var(--text);
   font-weight: 500;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.5rem;
   border: 1px solid var(--border);
   border-radius: 6px;
   background-color: var(--bg);
@@ -113,7 +113,6 @@
 }
 
 .login-btn:hover {
-  background-color: var(--muted);
   border-color: var(--text);
 }
 

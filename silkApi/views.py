@@ -10,6 +10,26 @@ import datetime
 from .serializers import ContributeInstagramIDSerializer
 from collections import defaultdict
 
+def get_student_data(sr_no):
+    """Helper function to get student data by sr_no"""
+    try:
+        student = Student.objects.values('name',
+                                       'sr_no',
+                                       'department',
+                                       'date_of_birth',
+                                       'Instagram_id',
+                                       'father_mobile',
+                                       'opt_out',
+                                       'street',
+                                       'street2',
+                                       'district',
+                                       'contributor'
+                                       ).get(sr_no=sr_no)
+        return student, None
+    except Student.DoesNotExist:
+        return None, "Student not found"
+
+
 #<---------------------------Search API----------------------------->
 @api_view(['POST'])
 @permission_classes([])  
@@ -57,25 +77,6 @@ def toggle_opt_out(request, sr_no):
         return JsonResponse({'opt_out': student.opt_out}, status=200)
     except Student.DoesNotExist:
         return HttpResponseNotFound("student not found")
-
-def get_student_data(sr_no):
-    """Helper function to get student data by sr_no"""
-    try:
-        student = Student.objects.values('name',
-                                       'sr_no',
-                                       'department',
-                                       'date_of_birth',
-                                       'Instagram_id',
-                                       'father_mobile',
-                                       'opt_out',
-                                       'street',
-                                       'street2',
-                                       'district',
-                                       'contributor'
-                                       ).get(sr_no=sr_no)
-        return student, None
-    except Student.DoesNotExist:
-        return None, "Student not found"
 
 def students_by_sr(request,sr_no):
     student_data, error_message = get_student_data(sr_no)

@@ -8,7 +8,7 @@ const searchElements = {
   loginBtn: document.getElementById("loginBtn"),
 };
 
-let currentUser = null;
+
 let debounceTimer = null;
 let currentRequest = null;
 
@@ -213,9 +213,9 @@ function createStudentDetailsHTML(student, dob, is1970Date, age) {
   let instagramSection;
   if (student.Instagram_id) {
     const isContributor =
-      currentUser &&
+      navCurrentUser &&
       student.contributor &&
-      currentUser.email === student.contributor;
+      navCurrentUser.email === student.contributor;
     instagramSection = `<div class="instagram-info">
             <a href="https://instagram.com/${student.Instagram_id.replace(
               " (Not verified)",
@@ -467,14 +467,14 @@ function showInstagramContribution(sr_no) {
     zIndex: "9999",
   });
 
-  const isLoggedIn = currentUser?.email;
+  const isLoggedIn = navCurrentUser?.email;
   popup.innerHTML = `
         <div class="ig-popup-card">
             <h3>Contribute Instagram ID</h3>
             <div class="ig-popup-desc">
                 ${
                   isLoggedIn
-                    ? `Contributing as <strong>${currentUser.email}</strong>
+                    ? `Contributing as <strong>${navCurrentUser.email}</strong>
                     <p style="color:#888; font-size:0.6rem"> Your contribution will be kept anonymous 🛡️</p>`
                     : '<span> <a href="/sign_in?next=/search" style="color:#888; text-decoration:none ">Login to contribute</a></span>'
                 }

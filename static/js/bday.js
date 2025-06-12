@@ -98,7 +98,7 @@ function createDaysUntilElement(daysUntil) {
     if (daysUntil === 0) {
         daysUntilDiv.appendChild(createElement('span', {
             className: 'today-celebration',
-            textContent: '🎉 TODAY! 🎉'
+            textContent: 'TODAY!'
         }));
     } else {
         daysUntilDiv.appendChild(createElement('span', {
