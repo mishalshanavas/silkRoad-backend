@@ -476,7 +476,7 @@ function showInstagramContribution(sr_no) {
                   isLoggedIn
                     ? `Contributing as <strong>${navCurrentUser.email}</strong>
                     <p style="color:#888; font-size:0.6rem"> Your contribution will be kept anonymous 🛡️</p>`
-                    : '<span> <a href="/sign_in?next=/search" style="color:#888; text-decoration:none ">Login to contribute</a></span>'
+                    : `<span> <a href="/sign_in?next=/search/?sr_no=${sr_no}" style="color:firebrick; text-decoration:none ">Login to contribute <button style="margin-left: 4px; padding: 1px 4px; font-size: 1rem;" >Login</button></a></span>`
                 }
             </div>
             <input type="text" id="popupInstagramInput" placeholder="Instagram ID without '@' " ${

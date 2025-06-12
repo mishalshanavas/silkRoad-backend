@@ -308,7 +308,7 @@ h1 {
   color: #111;
 }
 #ig-contribute-popup .ig-popup-desc {
-  font-size: 0.97em;
+  font-size: 0.8em;
   color: #444;
   margin-bottom: 0.7em;
 }
@@ -329,7 +329,7 @@ h1 {
   background: #fff;
 }
 #popupResponseMsg {
-  margin-bottom: 0.7em;
+  margin-bottom: 0.2em;
   color: #111;
   min-height: 1.1em;
   font-size: 0.96em;
