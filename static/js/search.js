@@ -467,7 +467,7 @@ function showInstagramContribution(sr_no) {
     zIndex: "9999",
   });
 
-  const isLoggedIn = navCurrentUser?.email;
+  const isLoggedIn = navCurrentUser?.email; 
   popup.innerHTML = `
         <div class="ig-popup-card">
             <h3>Contribute Instagram ID</h3>

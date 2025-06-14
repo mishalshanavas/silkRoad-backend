@@ -12,10 +12,21 @@
       <div id="suggestions" class="suggestions"></div>
     </div>
   </form>
-  <section id="studentDetails"></section>
+  <section id="studentDetails">
+    <link rel="stylesheet" href="../static/css/bday.css">
+    <div class="container">
+            <div class="section">
+                <h2 class="section-title">Birthdays and upcoming birthdays</h2>
+                <div class="birthday-list" id="allBirthdays">
+                    <div class="loading">Loading birthdays...</div>
+                </div>
+            </div>
+        </div>
+    <script src="../static/js/bday.js"></script>
+
+  </section>
 </main>
 {% endblock %}
-
 {% block scripts %}
   <script src="/static/js/search.js"></script>
 {% endblock %}

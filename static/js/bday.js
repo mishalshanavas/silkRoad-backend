@@ -61,9 +61,9 @@ function createDateElement(birthdayDate) {
 
 function createStudentElement(student) {
     const isToday = student.days_until === 0;
-    const studentInfo = createElement('div', { className: 'student-info' });
+    const studentInfo = createElement('div', { className: 'birthday-info' });
     
-    const studentName = createElement('div', { className: 'student-name' });
+    const studentName = createElement('div', { className: 'birthday-name' });
     
     if (isToday) {
         studentName.appendChild(createElement('span', { 
