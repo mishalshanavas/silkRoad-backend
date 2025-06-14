@@ -9,6 +9,7 @@ from .models import Student
 import datetime
 from .serializers import ContributeInstagramIDSerializer
 from collections import defaultdict
+from django.db import models
 
 def get_student_data(sr_no):
     """Helper function to get student data by sr_no"""
@@ -106,42 +107,73 @@ def auto_complete(request):
 
 def upcoming_birthday(request):
     today = datetime.date.today()
-    upcoming_bdays = []
-
-    for i in range(15):
-        check_date = today + datetime.timedelta(days=i) 
+    end_date = today + datetime.timedelta(days=14)
+    
+    if today.month == 12 and end_date.month == 1:
+            students = Student.objects.filter(
+            models.Q(
+                date_of_birth__month__gte=today.month, date_of_birth__day__gte=today.day
+            ) |
+            models.Q(
+                date_of_birth__month__lte=end_date.month, date_of_birth__day__lte=end_date.day
+            ) |
+            models.Q(
+                date_of_birth__month__gt=today.month
+            ) |
+            models.Q(
+                date_of_birth__month__lt=end_date.month
+            )
+        ).values('name', 'sr_no', 'department', 'date_of_birth')
+    else:
+        # Normal case: same year
         students = Student.objects.filter(
-            date_of_birth__month=check_date.month,
-            date_of_birth__day=check_date.day,
-            #opt_out=False  | uncomment to exclude opted-out students (ipppo excluded alla)
+            models.Q(
+                date_of_birth__month=today.month, date_of_birth__day__gte=today.day
+            ) |
+            models.Q(
+                date_of_birth__month__gt=today.month, date_of_birth__month__lt=end_date.month
+            ) |
+            models.Q(
+                date_of_birth__month=end_date.month,
+                date_of_birth__day__lte=end_date.day
+            )
         )
-        for student in students:
-            age = check_date.year - student.date_of_birth.year
+    upcoming_bdays = []
+    for student in students:
+        birth_date = student.date_of_birth if hasattr(student, 'date_of_birth') else student['date_of_birth']
+        current_year_birthday = birth_date.replace(year=today.year)
 
-            upcoming_bdays.append({
-                'name': student.name,
-                'sr_no': student.sr_no,
-                'department': student.department,
-                'date_of_birth': student.date_of_birth,
-                'days_until': i,
+        if current_year_birthday < today:
+            current_year_birthday = birth_date.replace(year=today.year + 1)
+        days_until = (current_year_birthday - today).days
+        # Only include if within 15 days
+        if days_until <= 14:
+            age = current_year_birthday.year - birth_date.year
+
+            student_data = {
+                'name': student.name if hasattr(student, 'name') else student['name'],
+                'sr_no': student.sr_no if hasattr(student, 'sr_no') else student['sr_no'],
+                'department': student.department if hasattr(student, 'department') else student['department'],
+                'date_of_birth': birth_date,
+                'days_until': days_until,
                 'turning_age': age,
-                'birthday_date': f"{check_date.day}/{check_date.month}"
-            })
+                'birthday_date': f"{current_year_birthday.day}/{current_year_birthday.month}"
+            }
+            upcoming_bdays.append(student_data)
+    
+    upcoming_bdays.sort(key=lambda x: (x['days_until'], x['name']))  
     grouped = defaultdict(list)
     for bday in upcoming_bdays:
         grouped[bday['days_until']].append(bday)
 
-    #to  include all sudents at the last day
     result = []
     count = 0
     for days_until in sorted(grouped.keys()):
         group = grouped[days_until]
         result.extend(group)
-        
         count += len(group)
-        if count >= 10: 
+        if count >= 10:
             break
-
     return JsonResponse({"students": result})
 
 def home(request):
