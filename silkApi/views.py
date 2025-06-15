@@ -10,6 +10,8 @@ import datetime
 from .serializers import ContributeInstagramIDSerializer
 from collections import defaultdict
 from django.db import models
+import pytz
+from django.utils import timezone
 
 def get_student_data(sr_no):
     """Helper function to get student data by sr_no"""
@@ -106,9 +108,9 @@ def auto_complete(request):
     return JsonResponse(results, safe=False)
 
 def upcoming_birthday(request):
-    today = datetime.date.today()
+    ist = pytz.timezone('Asia/Kolkata')
+    today = timezone.now().astimezone(ist).date()
     end_date = today + datetime.timedelta(days=14)
-    
     if today.month == 12 and end_date.month == 1:
             students = Student.objects.filter(
             models.Q(
