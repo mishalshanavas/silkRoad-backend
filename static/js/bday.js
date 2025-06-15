@@ -105,6 +105,11 @@ function createDaysUntilElement(daysUntil) {
             className: 'days-remaining',
             textContent: `${daysUntil} day${daysUntil > 1 ? 's' : ''}`
         }));
+        daysUntilDiv.appendChild(document.createElement('br'));
+        daysUntilDiv.appendChild(createElement('span', {
+            className: 'days-label',
+            textContent: 'to go'
+        }));
     }
 
     return daysUntilDiv;
@@ -139,3 +144,4 @@ function getMonthName(monthNumber) {
 
 // Load birthdays when page loads
 document.addEventListener('DOMContentLoaded', fetchBirthdays);
+
