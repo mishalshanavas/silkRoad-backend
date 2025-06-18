@@ -44,4 +44,6 @@ def fetch_instagram_info(request):
         'full_name': user_info.full_name,
         'profile_pic_url': str(user_info.profile_pic_url),
         'is_private': user_info.is_private,
+        'follower_count': user_info.follower_count,
+        'media_count': user_info.media_count,
     })

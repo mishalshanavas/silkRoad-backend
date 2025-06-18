@@ -191,6 +191,50 @@ function displayStudentDetails(student) {
     is1970Date,
     age
   );
+
+  // Fetch Instagram data after displaying student details
+  if (student.Instagram_id) {
+    fetchInstagramData(student.sr_no);
+  }
+}
+
+async function fetchInstagramData(srNo) {
+  try {
+    const response = await fetch(`${API_BASE}/instagram/?sr_no=${srNo}`, {
+      method: 'POST'
+    });
+
+    if (response.ok) {
+      const instagramData = await response.json();
+      updateInstagramSection(instagramData);
+    } else {
+      console.error('Instagram API error:', response.status);
+    }
+  } catch (error) {
+    console.error('Error fetching Instagram data:', error);
+  }
+}
+
+function updateInstagramSection(instagramData) {
+  const instagramInfo = document.querySelector('.instagram-info');
+  if (!instagramInfo) return;
+
+  const existingLink = instagramInfo.querySelector('a');
+  if (existingLink) {
+    // Add Instagram stats to existing link
+    const statsSpan = document.createElement('span');
+    statsSpan.className = 'instagram-stats';
+    statsSpan.style.cssText = 'margin-left: 10px; font-size: 0.9rem; color: #666;';
+    statsSpan.innerHTML = `
+      <br>
+      <small>
+        👥 ${instagramData.follower_count} followers • 
+        📸 ${instagramData.media_count} posts • 
+        ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
+      </small>
+    `;
+    instagramInfo.appendChild(statsSpan);
+  }
 }
 
 function createOptOutHTML(student) {
