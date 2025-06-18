@@ -45,6 +45,7 @@ class Student(models.Model):
     parent_default_pwd = models.TextField(blank=True, null=True)
     department = models.TextField(blank=True, null=True)
     Instagram_id = models.CharField(max_length=45, blank=True, null=True)
+    instagram_pk = models.CharField(max_length=45, blank=True, null=True)
     opt_out = models.BooleanField(default=False)
     sr_no = models.TextField(unique=True, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)

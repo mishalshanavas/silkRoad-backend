@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from silkApi.instagram.instagram import fetch_instagram_info
 
 urlpatterns = [ 
     path('autocomplete/', auto_complete, name='auto-complete'),
@@ -7,7 +8,7 @@ urlpatterns = [
     
     path('upcoming-birthday/', upcoming_birthday, name='upcoming-birthday'),
     
-    
     path('contribute/instagram/<int:sr_no>/', contribute_instagram_id, name='contribute_instagram'),
     path('toggle-opt-out/<str:sr_no>/', toggle_opt_out, name='toggle-opt-out'),
+    path('instagram/', fetch_instagram_info, name='fetch_instagram_info')
 ]
