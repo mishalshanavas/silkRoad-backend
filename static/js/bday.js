@@ -30,15 +30,19 @@ function displayBirthdays(students) {
         container.appendChild(createBirthdayElement(student));
     });
 }
-
 function createBirthdayElement(student) {
     const birthdayItem = createElement('div', {
-        className: `birthday-item ${student.days_until === 0 ? 'today' : ''}`
+        className: `birthday-item ${student.days_until === 0 ? 'today' : ''}`,
+        style: 'cursor: pointer;'
     });
 
     birthdayItem.appendChild(createDateElement(student.birthday_date));
     birthdayItem.appendChild(createStudentElement(student));
     birthdayItem.appendChild(createDaysUntilElement(student.days_until));
+
+    birthdayItem.addEventListener('click', () => {
+        window.location.href = `/search/?sr_no=${student.sr_no}`;
+    });
 
     return birthdayItem;
 }
