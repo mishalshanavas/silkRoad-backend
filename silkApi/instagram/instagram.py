@@ -37,9 +37,12 @@ def fetch_instagram_info(request):
     pk = get_instagram_pk_from_Db(sr_no)
     user_info = cl.user_info_v1(pk)
     profile_pic_proxy_url = f"/api/instagram/profile-pic/{user_info.pk}/"
-    
-    if Student.Instagram_id != user_info.username:
-        Student.objects.filter(sr_no=sr_no).update(Instagram_id=user_info.username)
+    student = Student.objects.get(sr_no=sr_no)
+    if student.Instagram_id != user_info.username:
+        student.contributed_ig = 'old Id>>' + student.Instagram_id 
+        student.Instagram_id = user_info.username
+        student.contributor = "AUTOFETCHED FROM INSTAGRAM"
+        student.save()
 
     return JsonResponse({
         'pk': user_info.pk,

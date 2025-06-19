@@ -1,5 +1,4 @@
 const API_BASE = "/api";
-
 const searchElements = {
   searchBox: document.getElementById("searchBox"),
   suggestions: document.getElementById("suggestions"),
@@ -11,9 +10,7 @@ const searchElements = {
 
 let debounceTimer = null;
 let currentRequest = null;
-
 document.addEventListener("DOMContentLoaded", initializePage);
-
 searchElements.searchBox.addEventListener("input", handleSearchInput);
 searchElements.searchForm.addEventListener("submit", handleFormSubmit);
 document.addEventListener("click", handleGlobalClick);
@@ -223,63 +220,59 @@ function updateInstagramSection(instagramData) {
   const instagramInfo = document.querySelector('.instagram-info');
   if (!instagramInfo) return;
 
-  // Check if Instagram content already exists to prevent duplicates
-  const existingContent = instagramInfo.querySelector('.instagram-content');
-  if (existingContent) {
-    existingContent.remove();
-  }
+  // Replace the entire instagram-info content with instagram-content
+  instagramInfo.innerHTML = '';
+  
+  const instagramContent = document.createElement('div');
+  instagramContent.className = 'instagram-content';
+  instagramContent.style.cssText = `
+    display: flex; 
+    align-items: center; 
+    gap: 12px;
+  `;
 
-  const existingLink = instagramInfo.querySelector('a');
-  if (existingLink) {
-    // Create a container for profile pic and stats
-    const instagramContent = document.createElement('div');
-    instagramContent.className = 'instagram-content';
-    instagramContent.style.cssText = `
-      display: flex; 
-      align-items: center; 
-      margin-top: 10px; 
-      gap: 12px;
-    `;
+  // Add profile picture
+  const profilePic = document.createElement('img');
+  profilePic.src = instagramData.profile_pic_url;
+  profilePic.alt = `${instagramData.username}'s profile picture`;
+  profilePic.style.cssText = `
+    width: 50px; 
+    height: 50px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    border: 2px solid #e1e5e9;
+  `;
+  profilePic.onerror = function() {
+    this.style.display = 'none';
+  };
 
-    // Add profile picture
-    const profilePic = document.createElement('img');
-    profilePic.src = instagramData.profile_pic_url;
-    profilePic.alt = `${instagramData.username}'s profile picture`;
-    profilePic.style.cssText = `
-      width: 50px; 
-      height: 50px; 
-      border-radius: 50%; 
-      object-fit: cover; 
-      border: 2px solid #e1e5e9;
-    `;
-    profilePic.onerror = function() {
-      this.style.display = 'none';
-    };
+  // Add Instagram link and stats
+  const statsDiv = document.createElement('div');
+  statsDiv.className = 'instagram-stats';
+  statsDiv.style.cssText = `
+    font-size: 0.9rem; 
+    color: #666; 
+    flex: 1;
+  `;
+  
+  const instagramLink = `https://instagram.com/${instagramData.username}`;
+  statsDiv.innerHTML = `
+    <div style="font-weight: 500; color: #333; margin-bottom: 2px;">
+      <a href="${instagramLink}" target="_blank" style="color: #333; text-decoration: none;">
+        @${instagramData.username}
+      </a>
+    </div>
+    <div style="font-size: 0.8rem;">
+      👥 ${instagramData.follower_count.toLocaleString()} followers • 
+      📸 ${instagramData.media_count.toLocaleString()} posts • 
+      ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
+    </div>
+  `;
 
-    // Add Instagram stats
-    const statsDiv = document.createElement('div');
-    statsDiv.className = 'instagram-stats';
-    statsDiv.style.cssText = `
-      font-size: 0.9rem; 
-      color: #666; 
-      flex: 1;
-    `;
-    statsDiv.innerHTML = `
-      <div style="font-weight: 500; color: #333; margin-bottom: 2px;">
-        ${instagramData.full_name || instagramData.username}
-      </div>
-      <div style="font-size: 0.8rem;">
-        👥 ${instagramData.follower_count.toLocaleString()} followers • 
-        📸 ${instagramData.media_count.toLocaleString()} posts • 
-        ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
-      </div>
-    `;
-
-    // Append elements to the container
-    instagramContent.appendChild(profilePic);
-    instagramContent.appendChild(statsDiv);
-    instagramInfo.appendChild(instagramContent);
-  }
+  // Append elements to the container
+  instagramContent.appendChild(profilePic);
+  instagramContent.appendChild(statsDiv);
+  instagramInfo.appendChild(instagramContent);
 }
 function createOptOutHTML(student) {
   return `
