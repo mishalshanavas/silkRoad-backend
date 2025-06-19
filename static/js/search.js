@@ -172,13 +172,7 @@ function getDaysUntilNextBirthday(dob) {
 }
 
 function displayStudentDetails(student) {
-  const dob = new Date(student.date_of_birth);
-  const is1970Date =
-    dob.getFullYear() === 1970 && dob.getMonth() === 0 && dob.getDate() === 1;
-  const age =
-    !is1970Date && student.date_of_birth
-      ? calculateAge(student.date_of_birth)
-      : null;
+  const age = student.date_of_birth ? calculateAge(student.date_of_birth) : null;
 
   if (student.opt_out) {
     searchElements.studentDetails.innerHTML = createOptOutHTML(student);
@@ -187,8 +181,6 @@ function displayStudentDetails(student) {
 
   searchElements.studentDetails.innerHTML = createStudentDetailsHTML(
     student,
-    dob,
-    is1970Date,
     age
   );
 
@@ -197,11 +189,20 @@ function displayStudentDetails(student) {
     fetchInstagramData(student.sr_no);
   }
 }
+let currentInstagramRequest = null;
 
 async function fetchInstagramData(srNo) {
+  // Abort previous request if still pending
+  if (currentInstagramRequest) {
+    currentInstagramRequest.abort();
+  }
+  const controller = new AbortController();
+  currentInstagramRequest = controller;
+
   try {
     const response = await fetch(`${API_BASE}/instagram/?sr_no=${srNo}`, {
-      method: 'POST'
+      method: 'POST',
+      signal: controller.signal
     });
 
     if (response.ok) {
@@ -211,32 +212,75 @@ async function fetchInstagramData(srNo) {
       console.error('Instagram API error:', response.status);
     }
   } catch (error) {
-    console.error('Error fetching Instagram data:', error);
+    if (error.name !== "AbortError") {
+      console.error('Error fetching Instagram data:', error);
+    }
+  } finally {
+    currentInstagramRequest = null;
   }
 }
-
 function updateInstagramSection(instagramData) {
   const instagramInfo = document.querySelector('.instagram-info');
   if (!instagramInfo) return;
 
+  // Check if Instagram content already exists to prevent duplicates
+  const existingContent = instagramInfo.querySelector('.instagram-content');
+  if (existingContent) {
+    existingContent.remove();
+  }
+
   const existingLink = instagramInfo.querySelector('a');
   if (existingLink) {
-    // Add Instagram stats to existing link
-    const statsSpan = document.createElement('span');
-    statsSpan.className = 'instagram-stats';
-    statsSpan.style.cssText = 'margin-left: 10px; font-size: 0.9rem; color: #666;';
-    statsSpan.innerHTML = `
-      <br>
-      <small>
-        👥 ${instagramData.follower_count} followers • 
-        📸 ${instagramData.media_count} posts • 
-        ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
-      </small>
+    // Create a container for profile pic and stats
+    const instagramContent = document.createElement('div');
+    instagramContent.className = 'instagram-content';
+    instagramContent.style.cssText = `
+      display: flex; 
+      align-items: center; 
+      margin-top: 10px; 
+      gap: 12px;
     `;
-    instagramInfo.appendChild(statsSpan);
+
+    // Add profile picture
+    const profilePic = document.createElement('img');
+    profilePic.src = instagramData.profile_pic_url;
+    profilePic.alt = `${instagramData.username}'s profile picture`;
+    profilePic.style.cssText = `
+      width: 50px; 
+      height: 50px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 2px solid #e1e5e9;
+    `;
+    profilePic.onerror = function() {
+      this.style.display = 'none';
+    };
+
+    // Add Instagram stats
+    const statsDiv = document.createElement('div');
+    statsDiv.className = 'instagram-stats';
+    statsDiv.style.cssText = `
+      font-size: 0.9rem; 
+      color: #666; 
+      flex: 1;
+    `;
+    statsDiv.innerHTML = `
+      <div style="font-weight: 500; color: #333; margin-bottom: 2px;">
+        ${instagramData.full_name || instagramData.username}
+      </div>
+      <div style="font-size: 0.8rem;">
+        👥 ${instagramData.follower_count.toLocaleString()} followers • 
+        📸 ${instagramData.media_count.toLocaleString()} posts • 
+        ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
+      </div>
+    `;
+
+    // Append elements to the container
+    instagramContent.appendChild(profilePic);
+    instagramContent.appendChild(statsDiv);
+    instagramInfo.appendChild(instagramContent);
   }
 }
-
 function createOptOutHTML(student) {
   return `
         <div class="student-card">
@@ -253,7 +297,7 @@ function createOptOutHTML(student) {
         </div>`;
 }
 
-function createStudentDetailsHTML(student, dob, is1970Date, age) {
+function createStudentDetailsHTML(student, age) {
   let instagramSection;
   if (student.Instagram_id) {
     const isContributor =
@@ -282,20 +326,23 @@ function createStudentDetailsHTML(student, dob, is1970Date, age) {
     .map((loc) => `<span class="loc-box">${loc}</span>`)
     .join("");
 
-  const dobSection = is1970Date
-    ? "DOB not available"
-    : `<p><strong>Date of Birth:</strong> ${dob
-        .getDate()
-        .toString()
-        .padStart(2, "0")}/${(dob.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}/${dob.getFullYear()} 
+  const dobSection = student.date_of_birth
+    ? (() => {
+        const dob = new Date(student.date_of_birth);
+        return `<p><strong>Date of Birth:</strong> ${dob
+          .getDate()
+          .toString()
+          .padStart(2, "0")}/${(dob.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}/${dob.getFullYear()} 
             <span class="age-info">${age} years old${
-        age < 18 ? " 🚩" : ""
-      }</span></p>
+          age < 18 ? " 🚩" : ""
+        }</span></p>
             <p><strong>Days until next birthday:</strong> ${getDaysUntilNextBirthday(
               student.date_of_birth
             )} days</p>`;
+      })()
+    : "DOB not available";
 
   return `
         <div class="student-card">

@@ -1,10 +1,11 @@
 import os
 import sys
 import django
-import json
+import requests
 from instagrapi import Client
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 from silkApi.models import Student
 
@@ -25,25 +26,52 @@ def setup_instagram_client():
         cl.dump_settings(SESSION_FILE)
     return True
 
-def get_instagram_pk(sr_no):
+def get_instagram_pk_from_Db(sr_no):
     student = Student.objects.get(sr_no=sr_no)
-    username = student.Instagram_id.strip().lstrip('@')
-    user_info = cl.user_info_by_username(username)
-    return str(user_info.pk)
+    return student.instagram_pk if student.instagram_pk else None
 
 @csrf_exempt
 def fetch_instagram_info(request):
     sr_no = request.GET.get('sr_no')
     setup_instagram_client()
-    pk = get_instagram_pk(sr_no)
-    user_info = cl.user_info(pk)
+    pk = get_instagram_pk_from_Db(sr_no)
+    user_info = cl.user_info_v1(pk)
+    profile_pic_proxy_url = f"/api/instagram/profile-pic/{user_info.pk}/"
     
+    if Student.Instagram_id != user_info.username:
+        Student.objects.filter(sr_no=sr_no).update(Instagram_id=user_info.username)
+
     return JsonResponse({
         'pk': user_info.pk,
         'username': user_info.username,
         'full_name': user_info.full_name,
-        'profile_pic_url': str(user_info.profile_pic_url),
+        'profile_pic_url': profile_pic_proxy_url,
         'is_private': user_info.is_private,
         'follower_count': user_info.follower_count,
         'media_count': user_info.media_count,
     })
+
+@csrf_exempt
+def proxy_profile_pic(request, pk):
+    """Proxy Instagram profile pictures through our domain"""
+    try:
+        setup_instagram_client()
+        user_info = cl.user_info(pk)
+        original_url = str(user_info.profile_pic_url)
+        response = requests.get(original_url, stream=True, timeout=10)
+        
+        if response.status_code == 200:
+            django_response = HttpResponse(
+                response.content,
+                content_type=response.headers.get('content-type', 'image/jpeg')
+            )
+
+            django_response['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
+            django_response['Content-Length'] = len(response.content)
+            
+            return django_response
+        else:
+            return HttpResponse("Image not found", status=404)
+            
+    except Exception as e:
+        return HttpResponse(f"Error fetching image: {str(e)}", status=500)
