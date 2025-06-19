@@ -36,7 +36,15 @@ function handleSearchInput() {
   }
 
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => fetchAutocomplete(query), 100);
+  debounceTimer = setTimeout(() => {
+    showLoadingSuggestions();
+    fetchAutocomplete(query);
+  }, 100);
+}
+
+function showLoadingSuggestions() {
+  searchElements.suggestions.innerHTML = `<div class="loading-suggestion">Searching...</div>`;
+  searchElements.suggestions.style.display = "block";
 }
 
 async function selectStudentBySrNumber(srNo) {
@@ -114,8 +122,12 @@ function displaySuggestions(students) {
   searchElements.suggestions.appendChild(fragment);
   searchElements.suggestions.style.display = "block";
 }
-
 async function selectStudent(srNo) {
+  searchElements.studentDetails.innerHTML = `
+    <div class="student-card">
+      <div class="loading-suggestion">Loading student details...</div>
+    </div>
+  `;
   try {
     const response = await fetch(`${API_BASE}/students/${srNo}/`);
     if (response.ok) {
@@ -187,14 +199,30 @@ function displayStudentDetails(student) {
   }
 }
 let currentInstagramRequest = null;
+let currentInstagramSrNo = null;
+let instagramCache = new Map(); // Cache for Instagram data
 
 async function fetchInstagramData(srNo) {
-  // Abort previous request if still pending
-  if (currentInstagramRequest) {
+  // Check if we already have cached data for this srNo
+  if (instagramCache.has(srNo)) {
+    updateInstagramSection(instagramCache.get(srNo));
+    return;
+  }
+
+  // Check if we're already fetching this same srNo
+  if (currentInstagramRequest && currentInstagramSrNo === srNo) {
+    // Same request is already in progress, don't make another one
+    return;
+  }
+
+  // Abort previous request if it's for a different srNo
+  if (currentInstagramRequest && currentInstagramSrNo !== srNo) {
     currentInstagramRequest.abort();
   }
+
   const controller = new AbortController();
   currentInstagramRequest = controller;
+  currentInstagramSrNo = srNo;
 
   try {
     const response = await fetch(`${API_BASE}/instagram/?sr_no=${srNo}`, {
@@ -204,6 +232,8 @@ async function fetchInstagramData(srNo) {
 
     if (response.ok) {
       const instagramData = await response.json();
+      // Cache the data for future use
+      instagramCache.set(srNo, instagramData);
       updateInstagramSection(instagramData);
     } else {
       console.error('Instagram API error:', response.status);
@@ -214,6 +244,7 @@ async function fetchInstagramData(srNo) {
     }
   } finally {
     currentInstagramRequest = null;
+    currentInstagramSrNo = null;
   }
 }
 function updateInstagramSection(instagramData) {
@@ -347,11 +378,11 @@ function createStudentDetailsHTML(student, age) {
                 </div>
                 <div class="social-id">
                     <span class="social-platform">Phone</span>
-                    ${
+                    ${navCurrentUser ? (
                       student.father_mobile
                         ? `<a href="tel:${student.father_mobile}">${student.father_mobile}</a>`
                         : "Phone number not available 📱"
-                    }
+                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}"> > login to view < <button class="login-btn">Login</button></a>`}
                 </div>
                 <div class="locality">
                     <span>Locality</span>

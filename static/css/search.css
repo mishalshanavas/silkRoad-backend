@@ -392,6 +392,7 @@ h1 {
   }
   .search-container {
     padding: 3rem 1rem;
+    padding-bottom: 1rem;
   }
   .student-card {
     padding: 1.5rem;
