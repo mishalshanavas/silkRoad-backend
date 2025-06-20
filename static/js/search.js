@@ -39,7 +39,7 @@ function handleSearchInput() {
   debounceTimer = setTimeout(() => {
     showLoadingSuggestions();
     fetchAutocomplete(query);
-  }, 100);
+  }, 300);
 }
 
 function showLoadingSuggestions() {
