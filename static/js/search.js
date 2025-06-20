@@ -271,7 +271,7 @@ function updateInstagramSection(instagramData) {
     height: 50px; 
     border-radius: 50%; 
     object-fit: cover; 
-    border: 2px solid #e1e5e9;
+    border: 2px solid var(--border);
   `;
   profilePic.onerror = function() {
     this.style.display = 'none';
@@ -282,14 +282,14 @@ function updateInstagramSection(instagramData) {
   statsDiv.className = 'instagram-stats';
   statsDiv.style.cssText = `
     font-size: 0.9rem; 
-    color: #666; 
+    color: var(--muted); 
     flex: 1;
   `;
   
   const instagramLink = `https://instagram.com/${instagramData.username}`;
   statsDiv.innerHTML = `
-    <div style="font-weight: 500; color: #333; margin-bottom: 2px;">
-      <a href="${instagramLink}" target="_blank" style="color: #333; text-decoration: none;">
+    <div style="font-weight: 500; color: var(--text); margin-bottom: 2px;">
+      <a href="${instagramLink}" target="_blank" style="color: var(--text); text-decoration: none;">
         @${instagramData.username}
       </a>
     </div>
@@ -332,7 +332,7 @@ function createStudentDetailsHTML(student, age) {
             <a href="https://instagram.com/${student.Instagram_id.replace(
               " (Not verified)",
               ""
-            )}" target="_blank">@${student.Instagram_id}</a>
+            )}" target="_blank" style="color: var(--text);">@${student.Instagram_id}</a>
             ${
               isContributor
                 ? `<button class="popup-submit" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem;" onclick="showInstagramContribution('${student.sr_no}')">Edit</button>`
@@ -340,7 +340,7 @@ function createStudentDetailsHTML(student, age) {
             }
         </div>`;
   } else {
-    instagramSection = `<span style="color: #666;">Instagram ID not available</span>
+    instagramSection = `<span style="color: var(--muted);">Instagram ID not available</span>
            <button class="popup-submit" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem;" 
            onclick="showInstagramContribution('${student.sr_no}')">Contribute ID</button>`;
   }
@@ -380,9 +380,9 @@ function createStudentDetailsHTML(student, age) {
                     <span class="social-platform">Phone</span>
                     ${navCurrentUser ? (
                       student.father_mobile
-                        ? `<a href="tel:${student.father_mobile}">${student.father_mobile}</a>`
+                        ? `<a href="tel:${student.father_mobile}" style="color: var(--text);">${student.father_mobile}</a>`
                         : "Phone number not available 📱"
-                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}"> > login to view < <button class="login-btn">Login</button></a>`}
+                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);"> > login to view < <button class="login-btn">Login</button></a>`}
                 </div>
                 <div class="locality">
                     <span>Locality</span>
@@ -398,7 +398,7 @@ function createStudentDetailsHTML(student, age) {
             <p class="opt-out-info"> 
                 <span class="opt-out-info"> <a href="#" onclick="confirmOptOut('${
                   student.sr_no
-                }')">Request to hide your data?</a></span>
+                }')" style="color: var(--muted-light);">Request to hide your data?</a></span>
             </p>
             <button class="clear-btn" onclick="clearSearch()">Clear Results</button>
             <div id="contribute-instagram-form" style="display:none; margin-top:10px;"></div>
@@ -424,15 +424,15 @@ function confirmOptOut(srNo) {
     zIndex: "10000",
   });
 
-  popup.innerHTML = ` <div class="popup-card" style="background: #f9fafb; padding: 2rem 2.5rem; border-radius: 14px; box-shadow: 0 4px 24px #0002; max-width: 370px; text-align: center; font-family: inherit;">
-                            <h3 style="color: #222; font-size: 1.4rem; margin-bottom: 0.5em;">Hide Your Profile? </h3>
-                            <div style="color: #444; font-size: 1rem; margin-bottom: 1.5em; line-height: 1.6;">
+  popup.innerHTML = ` <div class="popup-card" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 2rem 2.5rem; border-radius: 14px; box-shadow: var(--card-shadow); max-width: 370px; text-align: center; font-family: inherit;">
+                            <h3 style="color: var(--text); font-size: 1.4rem; margin-bottom: 0.5em;">Hide Your Profile? </h3>
+                            <div style="color: var(--muted); font-size: 1rem; margin-bottom: 1.5em; line-height: 1.6;">
                             Hiding your data means no one can find you—not even your future stalker 👀<br>
                             Are you <em>that</em> shy or just antisocial? 😬<br>
                             <span style="color:#c62828;">(Your crush is gonna think you dropped out 💀)</span>
                             </div>
-                            <button id="optout-confirm-btn" style="background: #fff; color: #222; border: 1px solid #bbb; border-radius: 6px; padding: 0.6em 1.2em; margin-right: 1em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Yehh 🕵️‍♂️</button>
-                            <button id="optout-cancel-btn" style="background: #222; color: #fff; border: none; border-radius: 6px; padding: 0.6em 1.2em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Never Mind 😎</button>
+                            <button id="optout-confirm-btn" style="background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.6em 1.2em; margin-right: 1em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Yehh 🕵️‍♂️</button>
+                            <button id="optout-cancel-btn" style="background: var(--text); color: var(--bg); border: none; border-radius: 6px; padding: 0.6em 1.2em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Never Mind 😎</button>
                         </div>`;
 
   document.body.appendChild(popup);
@@ -584,24 +584,24 @@ function showInstagramContribution(sr_no) {
 
   const isLoggedIn = navCurrentUser?.email; 
   popup.innerHTML = `
-        <div class="ig-popup-card">
-            <h3>Contribute Instagram ID</h3>
-            <div class="ig-popup-desc">
+        <div class="ig-popup-card" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 2rem 2.5rem; border-radius: 14px; box-shadow: var(--card-shadow); max-width: 370px; text-align: center; font-family: inherit;">
+            <h3 style="color: var(--text);">Contribute Instagram ID</h3>
+            <div class="ig-popup-desc" style="color: var(--muted); margin-bottom: 1rem; text-align: left; font-size: 0.9rem;">
                 ${
                   isLoggedIn
-                    ? `Contributing as <strong>${navCurrentUser.email}</strong>
-                    <p style="color:#888; font-size:0.6rem"> Your contribution will be kept anonymous 🛡️</p>`
-                    : `<span> <a href="/sign_in?next=/search/?sr_no=${sr_no}" style="color:firebrick; text-decoration:none ">Login to contribute <button style="margin-left: 4px; padding: 1px 4px; font-size: 1rem;" >Login</button></a></span>`
+                    ? `<em style="font-size: 0.8rem;"> Contributing as <strong style=" font-size: .7rem; color: var(--text);">${navCurrentUser.email}</strong></em>
+                    <p style="color: var(--muted-light); font-size:0.6rem"> Your contribution will be kept anonymous 🛡️</p>`
+                    : `<span> <a href="/sign_in?next=/search/?sr_no=${sr_no}" style="color: #c62828; text-decoration:none ">Login to contribute <button style="margin-left: 4px; padding: 1px 4px; font-size: 1rem;" >Login</button></a></span>`
                 }
             </div>
-            <input type="text" id="popupInstagramInput" placeholder="Instagram ID without '@' " ${
+            <input type="text" id="popupInstagramInput" placeholder="Instagram ID without '@' " style="background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem; border-radius: 6px; width: 100%; margin-bottom: 1rem;" ${
               isLoggedIn ? "" : "disabled"
             }>
-            <div id="popupResponseMsg"></div>
-            <button id="popupSubmitBtn" ${
+            <div id="popupResponseMsg" style="margin-bottom: 1rem;"></div>
+            <button id="popupSubmitBtn" style="background: var(--text); color: var(--bg); border: none; border-radius: 6px; padding: 0.6em 1.2em; margin-right: 1em; font-size: 1rem; cursor: pointer;" ${
               isLoggedIn ? "" : "disabled"
             }>Submit</button>
-            <button id="popupCancelBtn">Cancel</button>
+            <button id="popupCancelBtn" style="background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.6em 1.2em; font-size: 1rem; cursor: pointer;">Cancel</button>
         </div>`;
 
   document.body.appendChild(popup);
