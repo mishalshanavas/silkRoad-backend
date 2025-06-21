@@ -1,3 +1,13 @@
+:root {
+  --text: #eee;
+  --muted: #aaa;
+  --muted-light: #888;
+  --bg: #111;
+  --border: #333;
+  --hover-bg: #1a1a1a;
+  --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,8 +16,8 @@
 
 body {
     font-family: system-ui, sans-serif;
-    background-color: #fdfdfd;
-    color: #1a1a1a;
+    background-color: var(--bg);
+    color: var(--text);
     line-height: 1.5;
 }
 
@@ -27,12 +37,12 @@ body {
     font-weight: 400;
     letter-spacing: -0.4px;
     margin-bottom: 6px;
-    color: #111;
+    color: var(--text);
 }
 
 .subtitle {
     font-size: 14px;
-    color: #777;
+    color: var(--muted);
 }
 
 .section {
@@ -46,27 +56,22 @@ body {
     font-weight: 600;
     margin-bottom: 12px;
     padding-left: 4px;
-    border-left: 2px solid #000;
+    border-left: 2px solid var(--text);
 }
 
 .today-birthdays {
-    border: 1px solid #e5e5e5;
+    border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 32px;
     box-shadow: none;
-    background: #fff;
+    background: var(--bg);
     position: relative;
 }
 
-.today-birthdays::before {
-    content: '';
-    display: none;
-}
-
 .today-header {
-    background: linear-gradient(135deg, #000000 0%, #222 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--text) 0%, var(--muted) 100%);
+    color: var(--bg);
     padding: 16px;
     font-weight: 600;
     font-size: 16px;
@@ -83,7 +88,7 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background: linear-gradient(90deg, transparent, var(--hover-bg), transparent);
     animation: sweep 3s ease-in-out infinite;
 }
 
@@ -93,7 +98,7 @@ body {
 }
 
 .birthday-list {
-    height: 21em;
+    height: 24em;
     overflow: scroll;
     border-radius: 6px;
     scrollbar-width: none;
@@ -106,160 +111,123 @@ body {
 .birthday-item {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.2s ease;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    gap: 1rem;
 }
 
 .birthday-item:hover {
-    background-color: #f6f6f6;
+    background-color: var(--hover-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+    border-color: var(--text);
 }
 
 .birthday-item:last-child {
     border-bottom: none;
 }
 
-.birthday-item.today {
-    background: linear-gradient(135deg, #000000, #1a1a1a);
-    color: #ffffff;
-    position: relative;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.birthday-item.today::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.04), transparent 50%);
-    pointer-events: none;
-}
-
-.birthday-item.today:hover {
-    background: linear-gradient(135deg, #1a1a1a, #333);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-}
-
 .date-info {
     min-width: 60px;
     text-align: center;
-    margin-right: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: var(--hover-bg);
+    color: var(--text);
+    margin-right: 1rem;
 }
 
 .date-day {
-    font-size: 22px;
-    font-weight: 700;
-}
-
-.birthday-item.today .date-day {
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1;
 }
 
 .date-month {
-    font-size: 11px;
-    color: #888;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.6px;
-}
-
-.birthday-item.today .date-month {
-    color: #ccc;
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.8;
 }
 
 .birthday-info {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .birthday-name {
-    text-align: left;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    color: inherit;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
 }
 
 .student-detail {
     text-align: left;
-    font-size: 13px;
-    color: #777;
-}
-
-.birthday-item.today .student-detail {
-    color: #ddd;
+    color: var(--muted);
+    font-size: 0.9rem;
 }
 
 .days-until {
-    font-size: 14px;
-    color: #666;
-    text-align: right;
-    min-width: 80px;
-}
-
-.birthday-item.today .days-until {
-    color: #fff;
-    font-weight: 600;
-    font-size: 16px;
-    animation: glow 2s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-    0% { text-shadow: 0 0 6px rgba(255, 255, 255, 0.3); }
-    100% { text-shadow: 0 0 14px rgba(255, 255, 255, 0.6); }
+    color: var(--muted-light);
+    text-align: center;
+    min-width: 70px;
 }
 
 .birthday-badge {
-    margin-left: 8px;
-    font-size: 11px;
-    background: rgba(255,255,255,0.1);
-    padding: 2px 6px;
+    background: var(--text);
+    color: var(--bg);
+    padding: 0.2rem 0.5rem;
     border-radius: 12px;
     font-weight: 600;
     text-transform: uppercase;
-    color: #fff;
-}
-
-.today-celebration {
-    font-weight: 700;
-    font-size: 18px;
-    text-shadow: 0 0 10px rgba(255,255,255,0.4);
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
 }
 
 .days-remaining {
-    font-weight: 500;
-    color: #555;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: block;
+}
+
+.days-label {
+    color: var(--muted);
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 0.1rem;
 }
 
 .empty-state {
     text-align: center;
-    padding: 48px 20px;
-    color: #888;
-    font-style: italic;
-    font-size: 15px;
+    color: var(--muted);
+    padding: 3rem 2rem;
+    background: var(--hover-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 1.1rem;
 }
 
 .cake-icon {
-    font-size: 24px;
-    margin-right: 10px;
+    font-size: 1.2rem;
     display: inline-block;
-    animation: bounce 2s ease-in-out infinite;
-}
-
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-4px); }
-    60% { transform: translateY(-2px); }
-}
-
-.loading {
-    text-align: center;
-    padding: 40px 20px;
-    color: #666;
-    font-size: 14px;
 }
 
 @media (max-width: 640px) {

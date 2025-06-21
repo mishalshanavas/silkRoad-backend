@@ -96,7 +96,7 @@ h6 {
 .search-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 5rem 1.5rem;
+  padding: 5rem 1.5rem 2rem;
   text-align: center;
 }
 
@@ -251,7 +251,7 @@ h6 {
   color: var(--muted-light);
 }
 
-.clear-btn {
+.btn {
   background: transparent;
   color: var(--muted-light);
   border: 1.5px solid var(--border);
@@ -261,7 +261,7 @@ h6 {
   transition: all 0.2s ease;
 }
 
-.clear-btn:hover {
+.btn:hover {
   color: var(--text);
   border-color: var(--text);
 }
@@ -312,17 +312,6 @@ h6 {
   border-top: 1px solid var(--border);
 }
 
-.opt-out-btn {
-  background: none;
-  border: none;
-  color: var(--muted-light);
-  font-size: 0.9rem;
-  transition: color 0.2s ease;
-}
-
-.opt-out-btn:hover {
-  color: var(--text);
-}
 
 .opt-out-info {
   font-size: 0.75rem;

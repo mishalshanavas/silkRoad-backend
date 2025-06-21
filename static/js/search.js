@@ -313,7 +313,7 @@ function createOptOutHTML(student) {
                 <h3>🔒 Privacy Protected</h3>
                 <p>This student has chosen to keep their information private.</p>
                 <small>Please respect their privacy preference.</small>
-                <button class="clear-btn" onclick="clearSearch()">Back to Search</button>
+                <button class="btn" onclick="clearSearch()">Back to Search</button>
                 <div class="opt-out-info">
                     <span class="opt-out-info"> <a href="#" onclick="toggleOptOut('${student.sr_no}')">Request to unhide your data? 🦇</a></span>
                 </div>
@@ -341,7 +341,7 @@ function createStudentDetailsHTML(student, age) {
         </div>`;
   } else {
     instagramSection = `<span style="color: var(--muted);">Instagram ID not available</span>
-           <button class="popup-submit" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem;" 
+           <button class="btn" style="margin:0;font-size:0.8rem; padding:0.2rem 0.4rem" 
            onclick="showInstagramContribution('${student.sr_no}')">Contribute ID</button>`;
   }
 
@@ -382,7 +382,7 @@ function createStudentDetailsHTML(student, age) {
                       student.father_mobile
                         ? `<a href="tel:${student.father_mobile}" style="color: var(--text);">${student.father_mobile}</a>`
                         : "Phone number not available 📱"
-                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);"> > login to view < <button class="login-btn">Login</button></a>`}
+                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);"> > login to view < <button class="btn" style="margin:0;font-size:0.8rem; padding:0.2rem 0.4rem">login</button></a>`}
                 </div>
                 <div class="locality">
                     <span>Locality</span>
@@ -400,7 +400,7 @@ function createStudentDetailsHTML(student, age) {
                   student.sr_no
                 }')" style="color: var(--muted-light);">Request to hide your data?</a></span>
             </p>
-            <button class="clear-btn" onclick="clearSearch()">Clear Results</button>
+            <button class="btn" onclick="clearSearch()">Clear Results</button>
             <div id="contribute-instagram-form" style="display:none; margin-top:10px;"></div>
         </div>`;
 }

@@ -1,146 +1,147 @@
 .navbar {
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  background-color: var(--bg);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  background-color: var(--bg);
+  box-shadow: var(--card-shadow);
+  padding: 0 1rem;
 }
 
 .navbar-content {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   height: 64px;
 }
 
 .navbar-logo {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: var(--text);
-  letter-spacing: -0.02em;
   text-decoration: none;
-  transition: opacity 0.2s ease-out;
+  letter-spacing: -0.01em;
+  transition: opacity 0.2s ease;
 }
-.navbar-logo:hover {
-  opacity: 0.8;
+.navbar-logo:hover,
+.navbar-logo:focus {
+  opacity: 0.85;
+  outline: none;
 }
 
 .navbar-links {
   display: flex;
+  align-items: center;
+  gap: 1.8rem;
   list-style: none;
-  gap: 2rem;
   margin-left: auto;
-  margin-right: 2rem;
+  margin-right: 1.8rem;
 }
 .navbar-links a {
   text-decoration: none;
   color: var(--muted-light);
-  font-weight: 400;
-  transition: color 0.2s ease-out;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.2s ease;
 }
-.navbar-links a:hover {
+.navbar-links a:hover,
+.navbar-links a:focus {
   color: var(--text);
+  outline: none;
 }
 
 .user-profile {
-
-  padding-right: .5rem;
   display: flex;
   align-items: center;
-  gap: .8rem;
-  min-height: 32px; /* Match the profile picture height */
+  gap: 0.8rem;
+  padding-right: 0.5rem;
+  position: relative;
 }
 
 .user-dp {
   width: 36px;
   height: 36px;
-  border-radius: 16px;
-  object-fit: cover;
+  border-radius: 50%;
   border: 2px solid var(--border);
-}
-.user-dp:hover {
-  border-color: var(--text);
+  object-fit: cover;
   cursor: pointer;
-  opacity: 0.8;
-  transition: all 0.2s ease-out;
+  transition: all 0.2s ease;
+}
+.user-dp:hover,
+.user-dp:focus {
+  border-color: var(--text);
+  opacity: 0.85;
+  outline: none;
 }
 
-/* Tooltip for signout */
 .user-dp-wrapper {
   position: relative;
   display: inline-block;
 }
 
-.user-dp-wrapper .signout-tooltip {
-  visibility: hidden;
-  opacity: 0;
-  width: max-content;
-  background-color: var(--muted);
-  color: var(--text);
-  text-align: center;
-  border-radius: 4px;
-  padding: 0.3em 0.8em;
+.signout-tooltip {
   position: absolute;
-  z-index: 101;
   bottom: 110%;
   left: 50%;
-  transform: translateX(-50%);
-  transition: opacity 0.08s;
-  font-size: 0.95rem;
-  pointer-events: none;
+  transform: translateX(-50%) translateY(4px);
+  background-color: var(--muted);
+  color: var(--text);
+  padding: 0.35em 0.75em;
+  font-size: 0.9rem;
+  border-radius: 6px;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s ease, transform 0.1s ease;
+  z-index: 10;
 }
 
 .user-dp-wrapper:hover .signout-tooltip,
-.user-dp:focus + .signout-tooltip {
-  visibility: visible;
+.user-dp-wrapper:focus-within .signout-tooltip {
   opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 .login-btn {
-  text-decoration: none;
-  color: var(--text);
-  font-weight: 500;
-  padding: 0.3rem 0.5rem;
+  padding: 0.4rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background-color: var(--bg);
-  transition: all 0.2s ease-out;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--bg);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
-
-.login-btn:hover {
+.login-btn:hover,
+.login-btn:focus {
   border-color: var(--text);
+  outline: none;
 }
-
 .login-btn:active {
   transform: translateY(1px);
 }
 
+/* Mobile adjustments: Hide links */
 @media (max-width: 768px) {
   .navbar-links {
     display: none;
   }
-  
+
   .navbar-content {
-    justify-content: space-between;
+    height: 56px;
   }
-  
-  .navbar {
-    padding: 0 1rem;
-  }
-  
+
   .user-dp {
     width: 32px;
     height: 32px;
-    border-radius: 14px;
   }
-  
+
   .login-btn {
-    padding: 0.4rem 0.8rem;
+    padding: 0.4rem 0.6rem;
     font-size: 0.9rem;
   }
 }
