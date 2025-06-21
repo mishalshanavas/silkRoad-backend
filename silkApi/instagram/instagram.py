@@ -6,8 +6,10 @@ from instagrapi import Client
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-
+from dotenv import load_dotenv
 from silkApi.models import Student
+
+load_dotenv()
 
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(project_root)
@@ -20,8 +22,9 @@ def setup_instagram_client():
     if os.path.exists(SESSION_FILE):
         cl.load_settings(SESSION_FILE)
     else:
-        username = "chatha_poocha_and_6389_others"
-        password = "Mishal123.."
+        username = os.environ.get('INSTAGRAM_USERNAME')
+        password = os.environ.get('INSTAGRAM_PASSWORD')
+
         cl.login(username, password)
         cl.dump_settings(SESSION_FILE)
     return True
@@ -56,7 +59,6 @@ def fetch_instagram_info(request):
 
 @csrf_exempt
 def proxy_profile_pic(request, pk):
-    """Proxy Instagram profile pictures through our domain"""
     try:
         setup_instagram_client()
         user_info = cl.user_info(pk)

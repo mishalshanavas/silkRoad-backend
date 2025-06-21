@@ -88,11 +88,11 @@ WSGI_APPLICATION = 'silkRoad.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'studentData',
-        'USER': 'studentData_owner',
-        'PASSWORD': 'npg_MLdTR0HjfmB8',
-        'HOST': 'ep-rapid-wildflower-a19kw674-pooler.ap-southeast-1.aws.neon.tech',
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST',),
+        'PORT': os.environ.get('DB_PORT',),
         'OPTIONS': {
             'sslmode': 'require',
         }
@@ -125,11 +125,8 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
