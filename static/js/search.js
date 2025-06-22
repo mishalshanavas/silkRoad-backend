@@ -335,7 +335,7 @@ function createStudentDetailsHTML(student, age) {
             )}" target="_blank" style="color: var(--text);">@${student.Instagram_id}</a>
             ${
               isContributor
-                ? `<button class="popup-submit" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem;" onclick="showInstagramContribution('${student.sr_no}')">Edit</button>`
+                ? `<button class="popup-submit" style="margin-left: 10px, padding: 2px 8px, font-size: 0.8rem;" onclick="showInstagramContribution('${student.sr_no}')">Edit</button>`
                 : ""
             }
         </div>`;
@@ -664,3 +664,70 @@ async function handleInstagramSubmit(sr_no, popup) {
     msg.textContent = "Request failed: " + err;
   }
 }
+//-------------------------------------- text scrambling --------------------------------------
+function textScrambleSimple(el, phrases) {
+  let counter = 0, frame = 0, queue = [];
+  const chars = 'abcdefghijklmnopqrstuvwxyz';
+
+  function randomChar() {
+    return chars[Math.floor(Math.random() * chars.length)];
+  }
+  
+  function nextPhrase() {
+    const oldText = el.innerText;
+    const newText = phrases[counter];
+    const length = Math.max(oldText.length, newText.length);
+    queue = [];
+
+    for (let i = 0; i < length; i++) {
+      const from = oldText[i] || '';
+      const to = newText[i] || '';
+      const start = Math.floor(Math.random() * 60);
+      const end = start + Math.floor(Math.random() * 40);
+      queue.push({ from, to, start, end, char: null });
+    }
+    frame = 0;
+    update();
+  }
+
+  function update() {
+    let output = '', complete = 0;
+    for (let i = 0; i < queue.length; i++) {
+      let { from, to, start, end, char } = queue[i];
+      if (frame >= end) {
+        complete++;
+        output += to;
+      } else if (frame >= start) {
+        if (!char || Math.random() < 0.38) {
+          char = randomChar();
+          queue[i].char = char;
+        }
+        output += char;
+      } else {
+        output += from;
+      }
+    }
+    el.innerText = output;
+    if (complete === queue.length) {
+      counter = (counter + 1) % phrases.length;
+      setTimeout(nextPhrase, 3000);
+    } else {
+      requestAnimationFrame(update);
+      frame++;
+    }
+  }
+
+  nextPhrase();
+}
+
+textScrambleSimple(document.querySelector('.scramble-text'), ['classmates',
+                                                             'benchmates',
+                                                             'soulmates',
+                                                             'friends',
+                                                             'femboys',
+                                                             'tomboys',
+                                                             'furries',
+                                                             'crush',
+                                                             'bestie',
+                                                             'stalker',
+                                                             'ex']);

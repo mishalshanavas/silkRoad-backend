@@ -35,7 +35,8 @@ def get_instagram_pk(username):
     if not username or username.strip() == "":
         return None
     try:
-        clean_username = username.replace("@", "").strip()
+        clean_username = username.replace(" (Not verified)", "").replace(" ", "").strip()
+        print(f"Fetching PK for: {clean_username}")
         user_info = cl.user_info_by_username(clean_username)
         return str(user_info.pk)
     except UserNotFound:
