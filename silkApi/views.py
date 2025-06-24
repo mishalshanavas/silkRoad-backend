@@ -107,6 +107,12 @@ def auto_complete(request):
     ]
     return JsonResponse(results, safe=False)
 
+def get_all_autocomplete(request):
+    students = list(Student.objects.values(
+        'id', 'sr_no', 'name', 'department', 'opt_out'
+    ).order_by('name'))
+    return JsonResponse(students, safe=False)
+
 def upcoming_birthday(request):
     ist = pytz.timezone('Asia/Kolkata')
     today = timezone.now().astimezone(ist).date()

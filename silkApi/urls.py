@@ -4,7 +4,7 @@ from .instagram.instagram import fetch_instagram_info, proxy_profile_pic
 
 urlpatterns = [ 
     path('autocomplete/', auto_complete, name='auto-complete'),
-    path('students/<str:sr_no>/', students_by_sr, name='student-detail'),
+    path('student/<str:sr_no>/', students_by_sr, name='student-detail'),
     
     path('upcoming-birthday/', upcoming_birthday, name='upcoming-birthday'),
     
@@ -12,4 +12,5 @@ urlpatterns = [
     path('toggle-opt-out/<str:sr_no>/', toggle_opt_out, name='toggle-opt-out'),
     path('instagram/', fetch_instagram_info, name='instagram_info'),
     path('instagram/profile-pic/<str:pk>/', proxy_profile_pic, name='proxy_profile_pic'),
+    path('allstudents/', get_all_autocomplete, name='get_all_autocomplete'),
 ]
