@@ -360,24 +360,153 @@ h6 {
   margin-top: 0.5rem;
 }
 
-@media (max-width: 768px) {
-  .search-container {
-    padding: 3rem 1rem 1rem;
-  }
+/* Loading animations */
+.loading-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
 
-  .student-card {
-    padding: 1.5rem;
-  }
+.loading-spinner-large {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
+  margin: 20px auto;
+}
 
-  h1 {
-    font-size: 1.875rem;
-  }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
-  h2 {
-    font-size: 1.5rem;
-  }
+.loading-suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  background: var(--hover-bg);
+  border-radius: 8px;
+  margin: 0.5rem;
+  animation: fadeIn 0.3s ease;
+}
 
-  h3 {
-    font-size: 1.25rem;
-  }
+.loading-dots {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+.student-card-loading {
+  background-color: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  margin: 2rem auto 0;
+  max-width: 500px;
+  text-align: center;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.loading-skeleton {
+  background: linear-gradient(90deg, var(--hover-bg) 25%, var(--border) 50%, var(--hover-bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+.skeleton-line {
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.wide { width: 80%; }
+.skeleton-line.medium { width: 60%; }
+.skeleton-line.narrow { width: 40%; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+.search-loading {
+  position: relative;
+}
+
+.search-loading::after {
+  content: '';
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
+}
+
+.search-loading .search-btn {
+  opacity: 0;
+}
+
+/* Instagram loading state */
+.instagram-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Pulse animation for loading states */
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

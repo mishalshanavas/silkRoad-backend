@@ -56,10 +56,14 @@ function handleSearchInput() {
   const query = this.value.trim();
   if (query.length === 0) {
     hideSuggestions();
+    // Remove loading state from search box
+    searchElements.searchBox.parentElement.classList.remove('search-loading');
     return;
   }
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
+    // Add loading state to search box
+    searchElements.searchBox.parentElement.classList.add('search-loading');
     showLoadingSuggestions();
     searchFromCache(query);
   }, 300);
@@ -68,26 +72,38 @@ function handleSearchInput() {
 function fuzzyScore(searchTerm, target) {
   const search = searchTerm.toLowerCase();
   const text = target.toLowerCase();
+
   if (text.includes(search)) {
-    return 100 - (text.length - search.length);
+    return 100 - text.indexOf(search);
   }
+
   let score = 0;
   let searchIndex = 0;
+  let prevMatchIndex = -1;
+
   for (let i = 0; i < text.length && searchIndex < search.length; i++) {
     if (text[i] === search[searchIndex]) {
       score += 2;
-      searchIndex++;
-      if (i > 0 && searchIndex > 1 && text[i - 1] === search[searchIndex - 2]) {
-        score += 1;
+      
+      if (prevMatchIndex === i - 1) {
+        score += 2;
       }
+
+      prevMatchIndex = i;
+      searchIndex++;
     }
   }
+
   if (searchIndex === search.length) {
-    score += 10;
+    score += 10; 
   }
-  score -= Math.abs(text.length - search.length) * 0.1;
-  return Math.max(0, score);
+
+  // Penalize length difference a bit more
+  score -= Math.abs(text.length - search.length) * 0.5;
+
+  return Math.max(0, Math.round(score));
 }
+
 
 function searchFromCache(query) {
   if (!autocompleteCache) {
@@ -107,7 +123,11 @@ function searchFromCache(query) {
 }
 
 function showLoadingSuggestions() {
-  searchElements.suggestions.innerHTML = `<div class="loading-suggestion">Searching...</div>`;
+  searchElements.suggestions.innerHTML = `
+    <div class="loading-suggestion">
+      <div class="loading-spinner"></div>
+      Searching<span class="loading-dots"></span>
+    </div>`;
   searchElements.suggestions.style.display = "block";
 }
 
@@ -161,6 +181,9 @@ async function fetchAutocomplete(query) {
 }
 
 function displaySuggestions(students) {
+  // Remove loading state from search box
+  searchElements.searchBox.parentElement.classList.remove('search-loading');
+  
   if (students.length === 0) {
     hideSuggestions();
     return;
@@ -182,13 +205,16 @@ function displaySuggestions(students) {
   searchElements.suggestions.innerHTML = "";
   searchElements.suggestions.appendChild(fragment);
   searchElements.suggestions.style.display = "block";
+  // Add fade-in animation to suggestions
+  searchElements.suggestions.classList.add('fade-in');
 }
 
 async function selectStudent(srNo) {
   hideSuggestions();
   searchElements.studentDetails.innerHTML = `
-    <div class="student-card">
-      <div class="loading-suggestion">Loading student details...</div>
+    <div class="student-card-loading">
+      <div class="loading-spinner loading-spinner-large"></div>
+      <div>Loading student details<span class="loading-dots"></span></div>
     </div>
   `;
   try {
@@ -242,9 +268,11 @@ function displayStudentDetails(student) {
   const age = student.date_of_birth ? calculateAge(student.date_of_birth) : null;
   if (student.opt_out) {
     searchElements.studentDetails.innerHTML = createOptOutHTML(student);
+    searchElements.studentDetails.firstElementChild.classList.add('fade-in');
     return;
   }
   searchElements.studentDetails.innerHTML = createStudentDetailsHTML(student, age);
+  searchElements.studentDetails.firstElementChild.classList.add('fade-in');
   if (student.Instagram_id) {
     fetchInstagramData(student.sr_no);
   }
@@ -265,6 +293,13 @@ async function fetchInstagramData(srNo) {
   if (currentInstagramRequest && currentInstagramSrNo !== srNo) {
     currentInstagramRequest.abort();
   }
+  const instagramInfo = document.querySelector('.instagram-info');
+  if (instagramInfo && instagramInfo.innerHTML.trim() === '<!-- Instagram data will load here if available -->') {
+    instagramInfo.innerHTML = `
+      <div class="loading-spinner" style="width: 16px; height: 16px;"></div>
+    `;
+  }
+  
   const controller = new AbortController();
   currentInstagramRequest = controller;
   currentInstagramSrNo = srNo;
@@ -274,15 +309,20 @@ async function fetchInstagramData(srNo) {
       signal: controller.signal
     });
     if (response.ok) {
-      const instagramData = await response.json();
-      instagramCache.set(srNo, instagramData);
-      updateInstagramSection(instagramData);
+      const data = await response.json();
+      instagramCache.set(srNo, data);
+      updateInstagramSection(data);
     } else {
-      console.error('Instagram API error:', response.status);
+      if (instagramInfo) {
+        instagramInfo.innerHTML = '';
+      }
     }
   } catch (error) {
     if (error.name !== "AbortError") {
-      console.error('Error fetching Instagram data:', error);
+      console.error("Error fetching Instagram data:", error);
+      if (instagramInfo) {
+        instagramInfo.innerHTML = '';
+      }
     }
   } finally {
     currentInstagramRequest = null;
@@ -293,50 +333,60 @@ async function fetchInstagramData(srNo) {
 function updateInstagramSection(instagramData) {
   const instagramInfo = document.querySelector('.instagram-info');
   if (!instagramInfo) return;
-  instagramInfo.innerHTML = '';
-  const instagramContent = document.createElement('div');
-  instagramContent.className = 'instagram-content';
-  instagramContent.style.cssText = `
-    display: flex; 
-    align-items: center; 
-    gap: 12px;
-  `;
-  const profilePic = document.createElement('img');
-  profilePic.src = instagramData.profile_pic_url;
-  profilePic.alt = `${instagramData.username}'s profile picture`;
-  profilePic.style.cssText = `
-    width: 50px; 
-    height: 50px; 
-    border-radius: 50%; 
-    object-fit: cover; 
-    border: 2px solid var(--border);
-  `;
-  profilePic.onerror = function() {
-    this.style.display = 'none';
+  
+  // Add fade-out animation before updating only if there's existing content
+  if (instagramInfo.innerHTML.trim() !== '' && !instagramInfo.innerHTML.includes('Instagram data will load here')) {
+    instagramInfo.classList.add('fade-out');
+  }
+  
+  const updateContent = () => {
+    instagramInfo.innerHTML = '';
+    const instagramContent = document.createElement('div');
+    instagramContent.className = 'instagram-content fade-in';
+    instagramContent.style.cssText = `
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+      margin-left: 8px;
+    `;
+    const profilePic = document.createElement('img');
+    profilePic.src = instagramData.profile_pic_url;
+    profilePic.alt = `${instagramData.username}'s profile picture`;
+    profilePic.style.cssText = `
+      width: 32px; 
+      height: 32px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 1px solid var(--border);
+    `;
+    profilePic.onerror = function() {
+      this.style.display = 'none';
+    };
+    const statsDiv = document.createElement('div');
+    statsDiv.className = 'instagram-stats';
+    statsDiv.style.cssText = `
+      font-size: 0.75rem; 
+      color: var(--muted); 
+      flex: 1;
+    `;
+    statsDiv.innerHTML = `
+      <div style="font-size: 0.7rem; margin-bottom: 1px;">
+        👥 ${instagramData.follower_count.toLocaleString()} • 
+        📸 ${instagramData.media_count.toLocaleString()} • 
+        ${instagramData.is_private ? '🔒' : '🔓'}
+      </div>
+    `;
+    instagramContent.appendChild(profilePic);
+    instagramContent.appendChild(statsDiv);
+    instagramInfo.appendChild(instagramContent);
+    instagramInfo.classList.remove('fade-out');
   };
-  const statsDiv = document.createElement('div');
-  statsDiv.className = 'instagram-stats';
-  statsDiv.style.cssText = `
-    font-size: 0.9rem; 
-    color: var(--muted); 
-    flex: 1;
-  `;
-  const instagramLink = `https://instagram.com/${instagramData.username}`;
-  statsDiv.innerHTML = `
-    <div style="font-weight: 500; color: var(--text); margin-bottom: 2px;">
-      <a href="${instagramLink}" target="_blank" style="color: var(--text); text-decoration: none;">
-        @${instagramData.username}
-      </a>
-    </div>
-    <div style="font-size: 0.8rem;">
-      👥 ${instagramData.follower_count.toLocaleString()} followers • 
-      📸 ${instagramData.media_count.toLocaleString()} posts • 
-      ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
-    </div>
-  `;
-  instagramContent.appendChild(profilePic);
-  instagramContent.appendChild(statsDiv);
-  instagramInfo.appendChild(instagramContent);
+  
+  if (instagramInfo.classList.contains('fade-out')) {
+    setTimeout(updateContent, 300);
+  } else {
+    updateContent();
+  }
 }
 
 function createOptOutHTML(student) {
@@ -362,30 +412,43 @@ function createStudentDetailsHTML(student, age) {
       navCurrentUser &&
       student.contributor &&
       navCurrentUser.email === student.contributor;
-    instagramSection = `<div class="instagram-info">
-            <a href="https://instagram.com/${student.Instagram_id.replace(" (Not verified)", "")}" target="_blank" style="color: var(--text);">@${student.Instagram_id}</a>
-            ${
-              isContributor
-                ? `<button class="popup-submit" style="margin-left: 10px, padding: 2px 8px, font-size: 0.8rem;" onclick="showInstagramContribution('${student.sr_no}')">Edit</button>`
-                : ""
-            }
-        </div>`;
+    
+    instagramSection = `
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="https://instagram.com/${student.Instagram_id}" target="_blank" style="color: var(--text); text-decoration: none;">
+          @${student.Instagram_id}
+        </a>
+        <div class="instagram-info" style="display: inline-flex; align-items: center; gap: 6px;">
+          <!-- Instagram data will load here if available -->
+        </div>
+        ${
+          isContributor
+            ? `<span class="contributor-badge" style="font-size: 0.7rem; color: var(--muted); margin-left: auto;">contributed by you</span>`
+            : ""
+        }
+      </div>`;
   } else {
-    instagramSection = `<span style="color: var(--muted);">Instagram ID not available</span>
-           <button class="btn" style="margin:0;font-size:0.8rem; padding:0.2rem 0.4rem" onclick="showInstagramContribution('${student.sr_no}')">Contribute ID</button>`;
+    instagramSection = `
+      <span style="color: var(--muted);">Instagram not available</span>
+      <button onclick="showInstagramContribution('${student.sr_no}')" style="margin-left: 8px; padding: 2px 6px; font-size: 0.8rem; background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;">
+        Contribute
+      </button>`;
   }
+  
   const localityTags = [student.street, student.street2, student.district]
     .filter(Boolean)
     .map((loc) => `<span class="loc-box">${loc}</span>`)
     .join("");
+  
   const dobSection = student.date_of_birth
     ? (() => {
         const dob = new Date(student.date_of_birth);
-        return `<p><strong>Date of Birth:</strong> ${dob.getDate().toString().padStart(2, "0")}/${(dob.getMonth() + 1).toString().padStart(2, "0")}/${dob.getFullYear()} 
+        return `<p><span style="font-weight:500;">Date of Birth:</span> ${dob.getDate().toString().padStart(2, "0")}/${(dob.getMonth() + 1).toString().padStart(2, "0")}/${dob.getFullYear()} 
             <span class="age-info">${age} years old${age < 18 ? " 🚩" : ""}</span></p>
-            <p><strong>Days until next birthday:</strong> ${getDaysUntilNextBirthday(student.date_of_birth)} days</p>`;
+            <p><span style="font-weight:500;">Days until next birthday:</span> ${getDaysUntilNextBirthday(student.date_of_birth)} days</p>`;
       })()
     : "DOB not available";
+  
   return `
         <div class="student-card">
             <h2 class="student-name">${student.name}</h2>
@@ -400,19 +463,19 @@ function createStudentDetailsHTML(student, age) {
                       student.father_mobile
                         ? `<a href="tel:${student.father_mobile}" style="color: var(--text);">${student.father_mobile}</a>`
                         : "Phone number not available 📱"
-                    ) : `<a href="/sign_in?next=/search/" style="color: var(--text);"> > login to view < <button class="btn" style="margin:0;font-size:0.8rem; padding:0.2rem 0.4rem">login</button></a>`}
+                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);"> > login to view < <button class="btn" style="margin:0;font-size:0.8rem; padding:0.2rem 0.4rem">login</button></a>`}
                 </div>
                 <div class="locality">
                     <span>Locality</span>
                     <div class="locality-tags">${localityTags}</div>
                 </div>
-                ${
-                  student.department
-                    ? `<p><strong>Department:</strong> ${student.department}</p>`
-                    : ""
-                }
-                ${dobSection}
             </div>
+            ${
+              student.department
+                ? `<p><strong>Department:</strong> ${student.department}</p>`
+                : ""
+            }
+            ${dobSection}
             <p class="opt-out-info"> 
                 <span class="opt-out-info"> <a href="#" onclick="confirmOptOut('${student.sr_no}')" style="color: var(--muted-light);">Request to hide your data?</a></span>
             </p>
@@ -440,10 +503,10 @@ function confirmOptOut(srNo) {
   });
   popup.innerHTML = ` <div class="popup-card" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 2rem 2.5rem; border-radius: 14px; box-shadow: var(--card-shadow); max-width: 370px; text-align: center; font-family: inherit;">
                             <h3 style="color: var(--text); font-size: 1.4rem; margin-bottom: 0.5em;">Hide Your Profile? </h3>
-                            <div style="color: var(--muted); font-size: 1rem; margin-bottom: 1.5em; line-height: 1.6;">
-                            Hiding your data means no one can find you—not even your future stalker 👀<br>
-                            Are you <em>that</em> shy or just antisocial? 😬<br>
-                            <span style="color:#c62828;">(Your crush is gonna think you dropped out 💀)</span>
+                            <div style="color: var(--muted); font-size: .9rem; margin-bottom: 1.5em; line-height: 1.6;">
+                            Hiding your data means no one can find you—not even your future stalker<br>
+                            <span style="color:#c62828; font-size:0.8rem">(Your crush is gonna think <br>you dropped out Frr 💀 )</span>
+                            <br>Are you that <em>shy</em> ?<br>
                             </div>
                             <button id="optout-confirm-btn" style="background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.6em 1.2em; margin-right: 1em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Yehh 🕵️‍♂️</button>
                             <button id="optout-cancel-btn" style="background: var(--text); color: var(--bg); border: none; border-radius: 6px; padding: 0.6em 1.2em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Never Mind 😎</button>
@@ -462,6 +525,10 @@ async function handleFormSubmit(e) {
   e.preventDefault();
   const query = searchElements.searchBox.value.trim();
   if (query.length === 0) return;
+  
+  // Add loading state to search box
+  searchElements.searchBox.parentElement.classList.add('search-loading');
+  
   if (/^\d+$/.test(query)) {
     await selectStudentBySrNumber(query);
     return;
@@ -510,9 +577,10 @@ async function handleFormSubmit(e) {
 
 function showNoResults() {
   searchElements.studentDetails.innerHTML = `
-        <div class="student-card">
+        <div class="student-card fade-in">
             <div class="no-results">
-                No student found with that name. Try searching for someone else!
+                <h3>🔍 No student found</h3>
+                <p>No student found with that name. Try searching for someone else!</p>
             </div>
         </div>`;
 }
@@ -535,13 +603,32 @@ function handleGlobalClick(e) {
 function clearSearch() {
   searchElements.searchBox.value = "";
   hideSuggestions();
-  searchElements.studentDetails.innerHTML = "";
+  
+  const studentDetails = searchElements.studentDetails;
+  if (studentDetails.firstElementChild) {
+    studentDetails.firstElementChild.classList.add('fade-out');
+    setTimeout(() => {
+      studentDetails.innerHTML = "";
+    }, 300);
+  } else {
+    studentDetails.innerHTML = "";
+  }
   cleanURL();
+  searchElements.searchBox.parentElement.classList.remove('search-loading');
 }
 
 function hideSuggestions() {
-  searchElements.suggestions.style.display = "none";
-  searchElements.suggestions.innerHTML = "";
+  const suggestions = searchElements.suggestions;
+  if (suggestions.style.display !== "none") {
+    suggestions.classList.add('fade-out');
+    setTimeout(() => {
+      suggestions.style.display = "none";
+      suggestions.innerHTML = "";
+      suggestions.classList.remove('fade-out', 'fade-in');
+    }, 300);
+  }
+  // Remove search loading state
+  searchElements.searchBox.parentElement.classList.remove('search-loading');
 }
 
 async function toggleOptOut(srNo) {
