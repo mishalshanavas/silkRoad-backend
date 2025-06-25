@@ -370,6 +370,7 @@ function updateInstagramSection(instagramData) {
       color: var(--muted); 
       flex: 1;
       overflow: hidden;
+
       text-overflow: ellipsis;
     `;
     
@@ -382,7 +383,7 @@ function updateInstagramSection(instagramData) {
       <div onclick="location.href='https://instagram.com/${username}'" style="font-weight: 500; font-size: larger; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
         @${username}
       </div>
-      <div style="font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+      <div style="font-size: 0.8rem; white-space: wrap; overflow: hidden; text-overflow: ellipsis;">
         👥 ${instagramData.follower_count.toLocaleString()} followers • 
         📸 ${instagramData.media_count.toLocaleString()} posts • 
         ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
