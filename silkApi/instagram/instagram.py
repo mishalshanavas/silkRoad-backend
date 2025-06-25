@@ -38,7 +38,7 @@ def fetch_instagram_info(request):
     sr_no = request.GET.get('sr_no')
     setup_instagram_client()
     pk = get_instagram_pk_from_Db(sr_no)
-    user_info = cl.user_info_v1(pk)
+    user_info = cl.user_info(pk)
     profile_pic_proxy_url = f"/api/instagram/profile-pic/{user_info.pk}/"
     student = Student.objects.get(sr_no=sr_no)
     if student.Instagram_id != user_info.username:

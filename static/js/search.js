@@ -329,7 +329,6 @@ async function fetchInstagramData(srNo) {
     currentInstagramSrNo = null;
   }
 }
-
 function updateInstagramSection(instagramData) {
   const instagramInfo = document.querySelector('.instagram-info');
   if (!instagramInfo) return;
@@ -348,6 +347,7 @@ function updateInstagramSection(instagramData) {
       align-items: center; 
       gap: 8px;
       margin-left: 8px;
+      width: 100%;
     `;
     const profilePic = document.createElement('img');
     profilePic.src = instagramData.profile_pic_url;
@@ -358,6 +358,7 @@ function updateInstagramSection(instagramData) {
       border-radius: 50%; 
       object-fit: cover; 
       border: 1px solid var(--border);
+      flex-shrink: 0;
     `;
     profilePic.onerror = function() {
       this.style.display = 'none';
@@ -368,18 +369,30 @@ function updateInstagramSection(instagramData) {
       font-size: 0.75rem; 
       color: var(--muted); 
       flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
     `;
+    
+    // Properly format the username display
+    const fullName = instagramData.full_name ? instagramData.full_name.trim() : '';
+    const username = instagramData.username ? instagramData.username.trim() : '';
+    const displayName = fullName || username;
+    
     statsDiv.innerHTML = `
-      <div style="font-size: 0.7rem; margin-bottom: 1px;">
-        👥 ${instagramData.follower_count.toLocaleString()} • 
-        📸 ${instagramData.media_count.toLocaleString()} • 
-        ${instagramData.is_private ? '🔒' : '🔓'}
+      <div onclick="location.href='https://instagram.com/${username}'" style="font-weight: 500; font-size: larger; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        @${username}
+      </div>
+      <div style="font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        👥 ${instagramData.follower_count.toLocaleString()} followers • 
+        📸 ${instagramData.media_count.toLocaleString()} posts • 
+        ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
       </div>
     `;
     instagramContent.appendChild(profilePic);
     instagramContent.appendChild(statsDiv);
     instagramInfo.appendChild(instagramContent);
     instagramInfo.classList.remove('fade-out');
+    document.getElementById('initial-id').style.display='none';
   };
   
   if (instagramInfo.classList.contains('fade-out')) {
@@ -415,7 +428,7 @@ function createStudentDetailsHTML(student, age) {
     
     instagramSection = `
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <a href="https://instagram.com/${student.Instagram_id}" target="_blank" style="color: var(--text); text-decoration: none;">
+        <a id="initial-id" href="https://instagram.com/${student.Instagram_id}" target="_blank" style="color: var(--text); text-decoration: none;">
           @${student.Instagram_id}
         </a>
         <div class="instagram-info" style="display: inline-flex; align-items: center; gap: 6px;">
