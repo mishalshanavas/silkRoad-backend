@@ -41,7 +41,7 @@ function createBirthdayElement(student) {
     birthdayItem.appendChild(createDaysUntilElement(student.days_until));
 
     birthdayItem.addEventListener('click', () => {
-        window.location.href = `/search/?sr_no=${student.sr_no}`;
+        selectStudentBySrNumber(student.sr_no);
     });
 
     return birthdayItem;

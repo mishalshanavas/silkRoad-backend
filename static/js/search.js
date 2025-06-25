@@ -443,7 +443,7 @@ function createStudentDetailsHTML(student, age) {
   const dobSection = student.date_of_birth
     ? (() => {
         const dob = new Date(student.date_of_birth);
-        return `<p><span style="font-weight:500;">Date of Birth:</span> ${dob.getDate().toString().padStart(2, "0")}/${(dob.getMonth() + 1).toString().padStart(2, "0")}/${dob.getFullYear()} 
+        return `<p><span style="font-weight:500;">DOB:</span> ${dob.getDate().toString().padStart(2, "0")}/${(dob.getMonth() + 1).toString().padStart(2, "0")}/${dob.getFullYear()} 
             <span class="age-info">${age} years old${age < 18 ? " 🚩" : ""}</span></p>
             <p><span style="font-weight:500;">Days until next birthday:</span> ${getDaysUntilNextBirthday(student.date_of_birth)} days</p>`;
       })()
@@ -524,9 +524,11 @@ function confirmOptOut(srNo) {
 async function handleFormSubmit(e) {
   e.preventDefault();
   const query = searchElements.searchBox.value.trim();
-  if (query.length === 0) return;
   
-  // Add loading state to search box
+  if (query.length === 0) {
+    openBarcodeScanner();
+    return;
+  }
   searchElements.searchBox.parentElement.classList.add('search-loading');
   
   if (/^\d+$/.test(query)) {
@@ -815,3 +817,135 @@ textScrambleSimple(document.querySelector('.scramble-text'), ['classmates',
                                                              'bestie',
                                                              'stalker',
                                                              'ex']);
+
+function openBarcodeScanner() {
+  // Prevent zooming and scrolling
+  const gestureStartHandler = e => e.preventDefault();
+  const touchMoveHandler = e => e.preventDefault();
+  document.addEventListener('gesturestart', gestureStartHandler, { passive: false });
+  document.addEventListener('touchmove', touchMoveHandler, { passive: false });
+
+  // Create scanner container
+  const scannerContainer = document.createElement('div');
+  scannerContainer.id = 'barcode-scanner-container';
+  Object.assign(scannerContainer.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    background: 'rgba(0,0,0,0.92)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: '10000',
+    flexDirection: 'column'
+  });
+
+  // Minimal UI: No overlay on video
+  scannerContainer.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 18px;">
+      <div style="color: #fff; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5em;">
+        Scan ID
+      </div>
+      <div id="reader" style="
+        width: 260px;
+        height: 170px;
+        background: #181818;
+        border: 3px solid #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 24px #000a;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      "></div>
+      <div id="scan-overlay" style="display:none"></div>
+      <button id="close-scanner-btn" style="
+        background: #fff;
+        color: #222;
+        border: none;
+        border-radius: 6px;
+        padding: 0.7em 2em;
+        font-size: 1.05rem;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 1px 8px #0002;
+        margin-top: 8px;
+        transition: background 0.18s;
+      " onmouseover="this.style.background='#eee'" onmouseout="this.style.background='#fff'">Close</button>
+    </div>
+  `;
+  document.body.appendChild(scannerContainer);
+  let isCleanedUp = false;
+  const cleanup = () => {
+    if (isCleanedUp) return;
+    isCleanedUp = true;
+    try {
+      if (window.html5QrCodeInstance) {
+        window.html5QrCodeInstance.stop().catch(() => {});
+        window.html5QrCodeInstance.clear().catch(() => {});
+        window.html5QrCodeInstance = null;
+      }
+    } catch {}
+    try {
+      if (document.body.contains(scannerContainer)) {
+        document.body.removeChild(scannerContainer);
+      }
+    } catch {}
+    document.removeEventListener('gesturestart', gestureStartHandler);
+    document.removeEventListener('touchmove', touchMoveHandler);
+  };
+  document.getElementById('close-scanner-btn').onclick = cleanup;
+  scannerContainer.onclick = e => { if (e.target === scannerContainer) cleanup(); };
+  window.addEventListener('beforeunload', cleanup, { once: true });
+  setTimeout(cleanup, 5 * 60 * 1000);
+
+  const overlay = document.getElementById("scan-overlay");
+  if (typeof Html5Qrcode === "undefined") {
+    overlay.style.display = "block";
+    overlay.textContent = "";
+    const script = document.createElement('script');
+    script.src = "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js";
+    script.onload = () => initializeScanner(overlay, cleanup);
+    script.onerror = () => {
+      overlay.style.display = "block";
+      overlay.textContent = "Failed to load barcode scanner.";
+      overlay.innerHTML += '<br><button id="fallback-close" style="margin-top:10px;padding:5px 10px;cursor:pointer;">Close</button>';
+      document.getElementById('fallback-close').onclick = cleanup;
+    };
+    document.head.appendChild(script);
+  } else {
+    initializeScanner(overlay, cleanup);
+  }
+}
+
+function initializeScanner(overlay, cleanup) {
+  try {
+    const html5QrCode = new Html5Qrcode("reader");
+    window.html5QrCodeInstance = html5QrCode;
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 12 },
+      (decodedText) => {
+        if (/^\d+$/.test(decodedText)) {
+          try { selectStudentBySrNumber(decodedText); } catch {}
+          setTimeout(cleanup, 900);
+        }
+      },
+      () => {}
+    ).catch(err => {
+      overlay.style.display = "block";
+      overlay.innerHTML = `<span style="color: #f44">Camera error: ${err}</span>`;
+      overlay.innerHTML += '<br><button id="fallback-close" style="margin-top:10px;padding:5px 10px;cursor:pointer;">Close</button>';
+      document.getElementById('fallback-close').onclick = cleanup;
+    });
+  } catch (error) {
+    overlay.style.display = "block";
+    overlay.innerHTML = `<span style="color: #f44">Scanner error: ${error.message}</span>`;
+    overlay.innerHTML += '<br><button id="fallback-close" style="margin-top:10px;padding:5px 10px;cursor:pointer;">Close</button>';
+    document.getElementById('fallback-close').onclick = cleanup;
+  }
+}

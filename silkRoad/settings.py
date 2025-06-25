@@ -177,3 +177,4 @@ CORS_ALLOW_HEADERS = [
     'origin',
     'user-agent',
 ]
+ALLOWED_HOSTS = ['*']
