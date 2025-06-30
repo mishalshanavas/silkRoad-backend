@@ -206,7 +206,17 @@ function displaySuggestions(students) {
   searchElements.suggestions.appendChild(fragment);
   searchElements.suggestions.style.display = "block";
   // Add fade-in animation to suggestions
+  const suggestions = Array.from(searchElements.suggestions.children);
   searchElements.suggestions.classList.add('fade-in');
+  suggestions.forEach((suggestion, index) => {
+    suggestion.style.opacity = '0';
+    suggestion.style.transform = 'translateY(-10px)';
+    suggestion.style.transition = 'opacity 0.2s ease, transform 0.25s ease';
+    setTimeout(() => {
+      suggestion.style.opacity = '1';
+      suggestion.style.transform = 'translateY(0)';
+    }, 30 * index);
+  });
 }
 
 async function selectStudent(srNo) {
@@ -500,31 +510,23 @@ function createStudentDetailsHTML(student, age) {
 
 function confirmOptOut(srNo) {
   const existingPopup = document.getElementById("optout-confirm-popup");
-  if (existingPopup) existingPopup.remove();
+  if (existingPopup) return;
+  
   const popup = document.createElement("div");
   popup.id = "optout-confirm-popup";
-  Object.assign(popup.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "100vw",
-    height: "100vh",
-    background: "rgba(0,0,0,0.4)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: "10000",
-  });
-  popup.innerHTML = ` <div class="popup-card" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 2rem 2.5rem; border-radius: 14px; box-shadow: var(--card-shadow); max-width: 370px; text-align: center; font-family: inherit;">
-                            <h3 style="color: var(--text); font-size: 1.4rem; margin-bottom: 0.5em;">Hide Your Profile? </h3>
-                            <div style="color: var(--muted); font-size: .9rem; margin-bottom: 1.5em; line-height: 1.6;">
-                            Hiding your data means no one can find you—not even your future stalker<br>
-                            <span style="color:#c62828; font-size:0.8rem">(Your crush is gonna think <br>you dropped out Frr 💀 )</span>
-                            <br>Are you that <em>shy</em> ?<br>
-                            </div>
-                            <button id="optout-confirm-btn" style="background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.6em 1.2em; margin-right: 1em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Yehh 🕵️‍♂️</button>
-                            <button id="optout-cancel-btn" style="background: var(--text); color: var(--bg); border: none; border-radius: 6px; padding: 0.6em 1.2em; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Never Mind 😎</button>
-                        </div>`;
+  
+  popup.innerHTML = `
+    <div class="popup-card">
+      <h3>Hide Your Profile?</h3>
+      <div class="popup-desc">
+        Hiding your data means no one can find you—not even your future stalker<br>
+        <span style="color:#c62828; font-size:0.8rem">(Your crush is gonna think <br>you dropped out Frr 💀 )</span>
+        <br>Are you that <em>shy</em> ?<br>
+      </div>
+      <button id="optout-confirm-btn" class="popup-btn-secondary">Yehh 🕵️‍♂️</button>
+      <button id="optout-cancel-btn" class="popup-btn-primary">Never Mind 😎</button>
+    </div>`;
+    
   document.body.appendChild(popup);
   document.getElementById("optout-confirm-btn").onclick = () => {
     document.body.removeChild(popup);
@@ -688,149 +690,33 @@ function getCSRFToken() {
 function showInstagramContribution(sr_no) {
   const oldPopup = document.getElementById("ig-contribute-popup");
   oldPopup?.remove();
+  
   const popup = document.createElement("div");
   popup.id = "ig-contribute-popup";
-  Object.assign(popup.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "100vw",
-    height: "100vh",
-    background: "rgba(0,0,0,0.4)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: "9999",
-  });
-  const isLoggedIn = navCurrentUser?.email; 
+  
+  const isLoggedIn = navCurrentUser?.email;
   popup.innerHTML = `
-        <div class="ig-popup-card" style="background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 2rem 2.5rem; border-radius: 14px; box-shadow: var(--card-shadow); max-width: 370px; text-align: center; font-family: inherit;">
-            <h3 style="color: var(--text);">Contribute Instagram ID</h3>
-            <div class="ig-popup-desc" style="color: var(--muted); margin-bottom: 1rem; text-align: left; font-size: 0.9rem;">
-                ${
-                  isLoggedIn
-                    ? `<em style="font-size: 0.8rem;"> Contributing as <strong style=" font-size: .7rem; color: var(--text);">${navCurrentUser.email}</strong></em>
-                    <p style="color: var(--muted-light); font-size:0.6rem"> Your contribution will be kept anonymous 🛡️</p>`
-                    : `<span> <a href="/sign_in?next=/search/" style="color: #c62828; text-decoration:none ">Login to contribute <button style="margin-left: 4px; padding: 1px 4px; font-size: 1rem;" >Login</button></a></span>`
-                }
-            </div>
-            <input type="text" id="popupInstagramInput" placeholder="Instagram ID without '@' " style="background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem; border-radius: 6px; width: 100%; margin-bottom: 1rem;" ${isLoggedIn ? "" : "disabled"}>
-            <div id="popupResponseMsg" style="margin-bottom: 1rem;"></div>
-            <button id="popupSubmitBtn" style="background: var(--text); color: var(--bg); border: none; border-radius: 6px; padding: 0.6em 1.2em; margin-right: 1em; font-size: 1rem; cursor: pointer;" ${isLoggedIn ? "" : "disabled"}>Submit</button>
-            <button id="popupCancelBtn" style="background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.6em 1.2em; font-size: 1rem; cursor: pointer;">Cancel</button>
-        </div>`;
+    <div class="ig-popup-card">
+      <h3>Contribute Instagram ID</h3>
+      <div class="ig-popup-desc">
+        ${
+          isLoggedIn
+            ? `<em style="font-size: 0.8rem;"> Contributing as <strong style="font-size: .7rem; color: var(--text);">${navCurrentUser.email}</strong></em>
+            <p style="color: var(--muted-light); font-size:0.6rem"> Your contribution will be kept anonymous 🛡️</p>`
+            : `<span> <a href="/sign_in?next=/search/" style="color: #c62828; text-decoration:none">Login to contribute <button style="margin-left: 4px; padding: 1px 4px; font-size: 1rem;">Login</button></a></span>`
+        }
+      </div>
+      <input type="text" id="popupInstagramInput" placeholder="Instagram ID without '@'" ${isLoggedIn ? "" : "disabled"}>
+      <div id="popupResponseMsg" style="margin-bottom: 1rem;"></div>
+      <button id="popupSubmitBtn" class="popup-btn-primary" ${isLoggedIn ? "" : "disabled"}>Submit</button>
+      <button id="popupCancelBtn" class="popup-btn-secondary">Cancel</button>
+    </div>`;
+    
   document.body.appendChild(popup);
   document.getElementById("popupInstagramInput").focus();
   document.getElementById("popupCancelBtn").onclick = () => document.body.removeChild(popup);
   document.getElementById("popupSubmitBtn").onclick = () => handleInstagramSubmit(sr_no, popup);
 }
-
-async function handleInstagramSubmit(sr_no, popup) {
-  const instagramID = document.getElementById("popupInstagramInput").value.trim();
-  const msg = document.getElementById("popupResponseMsg");
-  if (!instagramID) {
-    msg.textContent = "Please enter an Instagram ID.";
-    msg.style.color = "firebrick";
-    return;
-  }
-  const igRegex = /^(?!.*\.\.)(?!.*\.$)[a-zA-Z0-9._]{1,30}$/;
-  if (
-    !igRegex.test(instagramID) ||
-    instagramID.startsWith(".") ||
-    instagramID.endsWith(".")
-  ) {
-    msg.textContent = "Kalikkunoda? Invalid Instagram ID.";
-    msg.style.color = "firebrick";
-    return;
-  }
-  try {
-    const response = await fetch(`/api/contribute/instagram/${sr_no}/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCSRFToken(),
-      },
-      body: JSON.stringify({ instagram_id: instagramID }),
-    });
-    const data = await response.json();
-    if (data.success) {
-      msg.style.color = "green";
-      msg.textContent = "Instagram ID submitted successfully!";
-      setTimeout(() => {
-        document.body.removeChild(popup);
-        selectStudent(sr_no);
-      }, 1000);
-    } else {
-      msg.style.color = "red";
-      msg.textContent = "Error: " + (data.detail || JSON.stringify(data));
-    }
-  } catch (err) {
-    msg.style.color = "red";
-    msg.textContent = "Request failed: " + err;
-  }
-}
-
-function textScrambleSimple(el, phrases) {
-  let counter = 0, frame = 0, queue = [];
-  const chars = 'abcdefghijklmnopqrstuvwxyz';
-  function randomChar() {
-    return chars[Math.floor(Math.random() * chars.length)];
-  }
-  function nextPhrase() {
-    const oldText = el.innerText;
-    const newText = phrases[counter];
-    const length = Math.max(oldText.length, newText.length);
-    queue = [];
-    for (let i = 0; i < length; i++) {
-      const from = oldText[i] || '';
-      const to = newText[i] || '';
-      const start = Math.floor(Math.random() * 60);
-      const end = start + Math.floor(Math.random() * 40);
-      queue.push({ from, to, start, end, char: null });
-    }
-    frame = 0;
-    update();
-  }
-  function update() {
-    let output = '', complete = 0;
-    for (let i = 0; i < queue.length; i++) {
-      let { from, to, start, end, char } = queue[i];
-      if (frame >= end) {
-        complete++;
-        output += to;
-      } else if (frame >= start) {
-        if (!char || Math.random() < 0.38) {
-          char = randomChar();
-          queue[i].char = char;
-        }
-        output += char;
-      } else {
-        output += from;
-      }
-    }
-    el.innerText = output;
-    if (complete === queue.length) {
-      counter = (counter + 1) % phrases.length;
-      setTimeout(nextPhrase, 3000);
-    } else {
-      requestAnimationFrame(update);
-      frame++;
-    }
-  }
-  nextPhrase();
-}
-
-textScrambleSimple(document.querySelector('.scramble-text'), ['classmates',
-                                                             'benchmates',
-                                                             'soulmates',
-                                                             'friends',
-                                                             'femboys',
-                                                             'tomboys',
-                                                             'furries',
-                                                             'crush',
-                                                             'bestie',
-                                                             'stalker',
-                                                             'ex']);
 
 function openBarcodeScanner() {
   // Prevent zooming and scrolling
@@ -842,54 +728,15 @@ function openBarcodeScanner() {
   // Create scanner container
   const scannerContainer = document.createElement('div');
   scannerContainer.id = 'barcode-scanner-container';
-  Object.assign(scannerContainer.style, {
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    width: '100vw',
-    height: '100vh',
-    background: 'rgba(0,0,0,0.92)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: '10000',
-    flexDirection: 'column'
-  });
 
-  // Minimal UI: No overlay on video
   scannerContainer.innerHTML = `
     <div style="display: flex; flex-direction: column; align-items: center; gap: 18px;">
       <div style="color: #fff; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5em;">
         Scan ID
       </div>
-      <div id="reader" style="
-        width: 260px;
-        height: 170px;
-        background: #181818;
-        border: 3px solid #fff;
-        border-radius: 14px;
-        box-shadow: 0 2px 24px #000a;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-      "></div>
+      <div id="reader"></div>
       <div id="scan-overlay" style="display:none"></div>
-      <button id="close-scanner-btn" style="
-        background: #fff;
-        color: #222;
-        border: none;
-        border-radius: 6px;
-        padding: 0.7em 2em;
-        font-size: 1.05rem;
-        font-weight: 500;
-        cursor: pointer;
-        box-shadow: 0 1px 8px #0002;
-        margin-top: 8px;
-        transition: background 0.18s;
-      " onmouseover="this.style.background='#eee'" onmouseout="this.style.background='#fff'">Close</button>
+      <button id="close-scanner-btn">Close</button>
     </div>
   `;
   document.body.appendChild(scannerContainer);

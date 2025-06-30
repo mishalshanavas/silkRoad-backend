@@ -510,3 +510,122 @@ h6 {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+#optout-confirm-popup, #ig-contribute-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.popup-card, .ig-popup-card {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 2rem 2.5rem;
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
+  max-width: 370px;
+  text-align: center;
+  font-family: inherit;
+}
+
+.popup-card h3, .ig-popup-card h3 {
+  color: var(--text);
+  font-size: 1.4rem;
+  margin-bottom: 0.5em;
+}
+
+.popup-card .popup-desc, .ig-popup-card .ig-popup-desc {
+  color: var(--muted);
+  font-size: .9rem;
+  margin-bottom: 1.5em;
+  line-height: 1.6;
+}
+
+.popup-btn-primary {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  padding: 0.6em 1.2em;
+  margin-right: 1em;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.popup-btn-secondary {
+  background: var(--hover-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6em 1.2em;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#popupInstagramInput {
+  background: var(--hover-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  border-radius: 6px;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Barcode scanner styles */
+#barcode-scanner-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  flex-direction: column;
+}
+
+#reader {
+  width: 260px;
+  height: 170px;
+  background: #181818;
+  border: 3px solid #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 24px #000a;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#close-scanner-btn {
+  background: #fff;
+  color: #222;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7em 2em;
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 8px #0002;
+  margin-top: 8px;
+  transition: background 0.18s;
+}
+
+#close-scanner-btn:hover {
+  background: #eee;
+}

@@ -42,6 +42,11 @@ function createBirthdayElement(student) {
 
     birthdayItem.addEventListener('click', () => {
         selectStudentBySrNumber(student.sr_no);
+        
+        // Add confetti effect for today's birthdays
+        if (student.days_until === 0) {
+            triggerBirthdayConfetti();
+        }
     });
 
     return birthdayItem;
@@ -147,6 +152,44 @@ function getMonthName(monthNumber) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return months[parseInt(monthNumber) - 1];
+}
+
+function triggerBirthdayConfetti() {
+    // Left side confetti
+    confetti({
+        origin: {
+            x: 0,
+            y: 0.5
+        },
+        particleCount: 50,
+        zIndex: 1,
+        spread: 60,
+        ticks: 500,
+    });
+    
+    // Right side confetti
+    confetti({
+        origin: {
+            x: 1,
+            y: 0.5
+        },
+        particleCount: 50,
+        zIndex: 1,
+        spread: 60,
+        ticks: 500,
+    });
+    
+    // Center confetti
+    confetti({
+        origin: {
+            x: 0.5,
+            y: 0.5
+        },
+        particleCount: 50,
+        zIndex: 1,
+        spread: 60,
+        ticks: 500,
+    });
 }
 
 // Load birthdays when page loads
