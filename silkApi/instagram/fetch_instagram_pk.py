@@ -4,13 +4,13 @@ import django
 import time
 from instagrapi import Client
 from instagrapi.exceptions import LoginRequired, UserNotFound, ClientError
+from silkApi.models import Student
 
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(project_root)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'silkRoad.settings')
 django.setup()
-from silkApi.models import Student
 
 SESSION_FILE = os.path.join(project_root, "session.json")
 cl = Client()

@@ -98,7 +98,7 @@ body {
 }
 
 .birthday-list {
-    height: 40em;
+    height: 34em;
     overflow: scroll;
     border-radius: 6px;
     scrollbar-width: none;
