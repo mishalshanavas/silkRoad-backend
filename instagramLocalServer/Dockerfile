@@ -4,12 +4,14 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install OS packages
+# Install minimal OS packages for Pillow
 RUN apt update && apt install -y \
     gcc \
     build-essential \
     libpq-dev \
     curl \
+    zlib1g-dev \
+    libjpeg-dev \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
