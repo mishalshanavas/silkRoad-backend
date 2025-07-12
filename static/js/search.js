@@ -815,3 +815,62 @@ function initializeScanner(overlay, cleanup) {
     document.getElementById('fallback-close').onclick = cleanup;
   }
 }
+
+// Add browser back button handling
+window.addEventListener('popstate', (event) => {
+  if (event.state && event.state.fromSearch) {
+    // Coming back from student details - go to clean search state
+    goBackToSearch();
+  } else {
+    // Normal browser navigation
+    const urlParams = new URLSearchParams(window.location.search);
+    const srNo = urlParams.get("sr_no");
+    if (srNo) {
+      isFromSearch = false;
+      selectStudentBySrNumber(srNo);
+    } else {
+      goBackToSearch();
+    }
+  }
+});
+
+// Mobile-style back navigation function
+function goBackToSearch() {
+  // Clear the student details with animation
+  const studentDetails = searchElements.studentDetails;
+  if (studentDetails.firstElementChild) {
+    studentDetails.firstElementChild.classList.add('fade-out');
+    setTimeout(() => {
+      studentDetails.innerHTML = "";
+    }, 300);
+  } else {
+    studentDetails.innerHTML = "";
+  }
+  
+  // Reset search to clean state
+  searchElements.searchBox.value = "";
+  searchElements.searchBox.focus();
+  hideSuggestions();
+  
+  // Clear navigation state
+  navigationStack = [];
+  isFromSearch = false;
+  
+  // Clean URL
+  cleanURL();
+  
+  // Remove any loading states
+  searchElements.searchBox.parentElement.classList.remove('search-loading');
+}
+
+// Add ESC key support for back navigation
+document.addEventListener('keydown', (e) => {
+  // ESC key for mobile-style back navigation
+  if (e.key === 'Escape') {
+    if (searchElements.suggestions.style.display !== 'none') {
+      hideSuggestions();
+    } else if (isFromSearch || searchElements.studentDetails.innerHTML.trim() !== '') {
+      goBackToSearch();
+    }
+  }
+});
