@@ -342,12 +342,11 @@ async function fetchInstagramData(srNo) {
 function updateInstagramSection(instagramData) {
   const instagramInfo = document.querySelector('.instagram-info');
   if (!instagramInfo) return;
-  
-  // Add fade-out animation before updating only if there's existing content
+
   if (instagramInfo.innerHTML.trim() !== '' && !instagramInfo.innerHTML.includes('Instagram data will load here')) {
     instagramInfo.classList.add('fade-out');
   }
-  
+
   const updateContent = () => {
     instagramInfo.innerHTML = '';
     const instagramContent = document.createElement('div');
@@ -359,8 +358,16 @@ function updateInstagramSection(instagramData) {
       margin-left: 8px;
       width: 100%;
     `;
+
+    // Use base64 image if available, else fallback to a default or blank
     const profilePic = document.createElement('img');
-    profilePic.src = instagramData.profile_pic_url;
+    if (instagramData.profile_pic_data) {
+      profilePic.src = instagramData.profile_pic_data;
+    } else if (instagramData.profile_pic_url) {
+      profilePic.src = instagramData.profile_pic_url;
+    } else {
+      profilePic.src = ""; // or a default image path
+    }
     profilePic.alt = `${instagramData.username}'s profile picture`;
     profilePic.style.cssText = `
       width: 32px; 
@@ -373,6 +380,7 @@ function updateInstagramSection(instagramData) {
     profilePic.onerror = function() {
       this.style.display = 'none';
     };
+
     const statsDiv = document.createElement('div');
     statsDiv.className = 'instagram-stats';
     statsDiv.style.cssText = `
@@ -380,22 +388,18 @@ function updateInstagramSection(instagramData) {
       color: var(--muted); 
       flex: 1;
       overflow: hidden;
-
       text-overflow: ellipsis;
     `;
-    
-    // Properly format the username display
+
     const fullName = instagramData.full_name ? instagramData.full_name.trim() : '';
     const username = instagramData.username ? instagramData.username.trim() : '';
-    const displayName = fullName || username;
-    
     statsDiv.innerHTML = `
       <div onclick="location.href='https://instagram.com/${username}'" style="font-weight: 500; font-size: larger; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
         @${username}
       </div>
       <div style="font-size: 0.8rem; white-space: wrap; overflow: hidden; text-overflow: ellipsis;">
-        👥 ${instagramData.follower_count.toLocaleString()} followers • 
-        📸 ${instagramData.media_count.toLocaleString()} posts • 
+        👥 ${instagramData.follower_count?.toLocaleString() || 0} followers • 
+        📸 ${instagramData.media_count?.toLocaleString() || 0} posts • 
         ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
       </div>
     `;
@@ -403,9 +407,10 @@ function updateInstagramSection(instagramData) {
     instagramContent.appendChild(statsDiv);
     instagramInfo.appendChild(instagramContent);
     instagramInfo.classList.remove('fade-out');
-    document.getElementById('initial-id').style.display='none';
+    const initialId = document.getElementById('initial-id');
+    if (initialId) initialId.style.display = 'none';
   };
-  
+
   if (instagramInfo.classList.contains('fade-out')) {
     setTimeout(updateContent, 300);
   } else {

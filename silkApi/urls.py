@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import *
-from .instagram.instagram import fetch_instagram_info, proxy_profile_pic
+from .instagram.instagram import fetch_instagram_info
 
 urlpatterns = [ 
     path('autocomplete/', auto_complete, name='auto-complete'),
@@ -11,6 +11,6 @@ urlpatterns = [
     path('contribute/instagram/<int:sr_no>/', contribute_instagram_id, name='contribute_instagram'),
     path('toggle-opt-out/<str:sr_no>/', toggle_opt_out, name='toggle-opt-out'),
     path('instagram/', fetch_instagram_info, name='instagram_info'),
-    path('instagram/profile-pic/<str:pk>/', proxy_profile_pic, name='proxy_profile_pic'),
+    #path('instagram/profile-pic/<str:pk>/', proxy_profile_pic, name='proxy_profile_pic'),
     path('allstudents/', get_all_autocomplete, name='get_all_autocomplete'),
 ]
