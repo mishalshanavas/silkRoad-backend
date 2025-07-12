@@ -1,6 +1,6 @@
-staticfiles/
-static/
-media/
-*.pyc
-__pycache__/
 .venv/
+.git/
+staticfiles/
+__pycache__/
+*.pyc
+.env
