@@ -370,6 +370,8 @@ h6 {
   border-top-color: var(--text);
   animation: spin 1s ease-in-out infinite;
   margin-right: 8px;
+  will-change: transform;
+  contain: strict;
 }
 
 .loading-spinner-large {
@@ -452,180 +454,158 @@ h6 {
 }
 
 .fade-in {
-  animation: fadeIn 0.4s ease;
+  animation: fadeInOptimized 0.3s ease forwards;
 }
 
 .fade-out {
-  animation: fadeOut 0.3s ease;
+  animation: fadeOutOptimized 0.3s ease forwards;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fadeInOptimized {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px) translateZ(0);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) translateZ(0);
+  }
 }
 
-@keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
+@keyframes fadeOutOptimized {
+  from { 
+    opacity: 1; 
+    transform: translateY(0) translateZ(0);
+  }
+  to { 
+    opacity: 0; 
+    transform: translateY(-10px) translateZ(0);
+  }
 }
 
-.search-loading {
-  position: relative;
+/* Use will-change for elements that will animate */
+.suggestion, .student-card, .suggestions {
+  will-change: transform, opacity;
 }
 
-.search-loading::after {
-  content: '';
-  position: absolute;
-  right: 0.6rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--border);
-  border-radius: 50%;
-  border-top-color: var(--text);
-  animation: spin 1s linear infinite;
+/* Use contain for better layout performance */
+.suggestions {
+  contain: layout style paint;
 }
 
-.search-loading .search-btn {
-  opacity: 0;
+.student-card {
+  contain: layout style;
 }
 
-/* Instagram loading state */
-.instagram-loading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 0;
-  color: var(--muted);
-  font-size: 0.9rem;
+/* Optimize loading spinner */
+.loading-spinner {
+  will-change: transform;
+  contain: strict;
 }
 
-/* Pulse animation for loading states */
-.pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .search-container {
+    padding: 3rem 1rem 2rem;
+  }
+  
+  .input-group {
+    max-width: 100%;
+    margin: 0;
+  }
+  
+  .search-box {
+    padding: 0.9rem 1rem;
+    padding-right: 3rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .search-btn {
+    right: 0.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  /* Left-align suggestions on mobile */
+  .suggestions {
+    text-align: left;
+    border-radius: 0 0 8px 8px;
+    max-height: 250px;
+  }
+  
+  .suggestion {
+    padding: 1rem;
+    /* Keep flex-direction as row to keep name and department on same line */
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .suggestion span:first-child {
+    font-weight: 500;
+    font-size: 1rem;
+  }
+  
+  .suggestion-department {
+    font-size: 0.85rem;
+    color: var(--muted-light);
+    margin-left: 0;
+  }
+  
+  /* Better touch targets */
+  .suggestion:hover {
+    transform: none;
+    background-color: var(--hover-bg);
+  }
+  
+  .suggestion:active {
+    background-color: var(--border);
+    transform: scale(0.98);
+  }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+/* Extra small screens */
+@media (max-width: 480px) {
+  .search-container {
+    padding: 2rem 0.75rem 1.5rem;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .suggestions {
+    left: 0.75rem;
+    right: 0.75rem;
+    border-radius: 0 0 6px 6px;
+  }
+  
+  .suggestion {
+    padding: 0.9rem;
+  }
 }
 
-#optout-confirm-popup, #ig-contribute-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.popup-card, .ig-popup-card {
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  padding: 2rem 2.5rem;
-  border-radius: 14px;
-  box-shadow: var(--card-shadow);
-  max-width: 370px;
-  text-align: center;
-  font-family: inherit;
-}
-
-.popup-card h3, .ig-popup-card h3 {
-  color: var(--text);
-  font-size: 1.4rem;
-  margin-bottom: 0.5em;
-}
-
-.popup-card .popup-desc, .ig-popup-card .ig-popup-desc {
-  color: var(--muted);
-  font-size: .9rem;
-  margin-bottom: 1.5em;
-  line-height: 1.6;
-}
-
-.popup-btn-primary {
-  background: var(--text);
-  color: var(--bg);
-  border: none;
-  border-radius: 6px;
-  padding: 0.6em 1.2em;
-  margin-right: 1em;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.popup-btn-secondary {
-  background: var(--hover-bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.6em 1.2em;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-#popupInstagramInput {
-  background: var(--hover-bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  padding: 0.5rem;
-  border-radius: 6px;
-  width: 100%;
-  margin-bottom: 1rem;
-}
-
-/* Barcode scanner styles */
-#barcode-scanner-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.92);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  flex-direction: column;
-}
-
-#reader {
-  width: 260px;
-  height: 170px;
-  background: #181818;
-  border: 3px solid #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 24px #000a;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-#close-scanner-btn {
-  background: #fff;
-  color: #222;
-  border: none;
-  border-radius: 6px;
-  padding: 0.7em 2em;
-  font-size: 1.05rem;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 1px 8px #0002;
-  margin-top: 8px;
-  transition: background 0.18s;
-}
-
-#close-scanner-btn:hover {
-  background: #eee;
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .search-container {
+    padding: 1.5rem 1rem 1rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subtitle {
+    margin-bottom: 1rem;
+  }
+  
+  .suggestions {
+    max-height: 200px;
+  }
 }

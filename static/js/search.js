@@ -34,6 +34,55 @@ function cleanURL() {
   window.history.replaceState({}, "", newUrl);
 }
 
+class SearchIndex {
+  constructor() {
+    this.nameIndex = new Map();
+    this.departmentIndex = new Map();
+    this.prefixMap = new Map();
+  }
+
+  buildIndex(students) {
+    students.forEach(student => {
+      const name = student.name.toLowerCase();
+      const dept = student.department?.toLowerCase() || '';
+      for (let i = 1; i <= name.length; i++) {
+        const prefix = name.substring(0, i);
+        if (!this.prefixMap.has(prefix)) {
+          this.prefixMap.set(prefix, []);
+        }
+        this.prefixMap.get(prefix).push(student);
+      }
+      this.nameIndex.set(name, student);
+      if (dept) {
+        if (!this.departmentIndex.has(dept)) {
+          this.departmentIndex.set(dept, []);
+        }
+        this.departmentIndex.get(dept).push(student);
+      }
+    });
+  }
+
+  search(query, limit = 10) {
+    const searchTerm = query.toLowerCase();
+    const results = new Set();
+    if (this.nameIndex.has(searchTerm)) {
+      results.add(this.nameIndex.get(searchTerm));
+    }
+    const prefixMatches = this.prefixMap.get(searchTerm) || [];
+    prefixMatches.forEach(student => results.add(student));
+    if (results.size < limit) {
+      for (const [name, student] of this.nameIndex) {
+        if (name.includes(searchTerm) && results.size < limit) {
+          results.add(student);
+        }
+      }
+    }
+    return Array.from(results).slice(0, limit);
+  }
+}
+
+let searchIndex = new SearchIndex();
+
 async function loadAutocompleteCache() {
   if (autocompleteCache && autocompleteCacheTimestamp && (Date.now() - autocompleteCacheTimestamp) < CACHE_DURATION) {
     return;
@@ -43,67 +92,12 @@ async function loadAutocompleteCache() {
     if (response.ok) {
       autocompleteCache = await response.json();
       autocompleteCacheTimestamp = Date.now();
-      console.log('Autocomplete cache loaded:', autocompleteCache.length, 'students');
-    } else {
-      console.error("Failed to load autocomplete cache:", response.status);
+      searchIndex.buildIndex(autocompleteCache);
     }
   } catch (error) {
     console.error("Error loading autocomplete cache:", error);
   }
 }
-
-function handleSearchInput() {
-  const query = this.value.trim();
-  if (query.length === 0) {
-    hideSuggestions();
-    // Remove loading state from search box
-    searchElements.searchBox.parentElement.classList.remove('search-loading');
-    return;
-  }
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    // Add loading state to search box
-    searchElements.searchBox.parentElement.classList.add('search-loading');
-    showLoadingSuggestions();
-    searchFromCache(query);
-  }, 300);
-}
-
-function fuzzyScore(searchTerm, target) {
-  const search = searchTerm.toLowerCase();
-  const text = target.toLowerCase();
-
-  if (text.includes(search)) {
-    return 100 - text.indexOf(search);
-  }
-
-  let score = 0;
-  let searchIndex = 0;
-  let prevMatchIndex = -1;
-
-  for (let i = 0; i < text.length && searchIndex < search.length; i++) {
-    if (text[i] === search[searchIndex]) {
-      score += 2;
-      
-      if (prevMatchIndex === i - 1) {
-        score += 2;
-      }
-
-      prevMatchIndex = i;
-      searchIndex++;
-    }
-  }
-
-  if (searchIndex === search.length) {
-    score += 10; 
-  }
-
-  // Penalize length difference a bit more
-  score -= Math.abs(text.length - search.length) * 0.5;
-
-  return Math.max(0, Math.round(score));
-}
-
 
 function searchFromCache(query) {
   if (!autocompleteCache) {
@@ -122,6 +116,47 @@ function searchFromCache(query) {
   displaySuggestions(scoredResults);
 }
 
+function handleSearchInput() {
+  const query = this.value.trim();
+  if (query.length === 0) {
+    hideSuggestions();
+    searchElements.searchBox.parentElement.classList.remove('search-loading');
+    return;
+  }
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    searchElements.searchBox.parentElement.classList.add('search-loading');
+    showLoadingSuggestions();
+    searchFromCache(query);
+  }, 300);
+}
+
+function fuzzyScore(searchTerm, target) {
+  const search = searchTerm.toLowerCase();
+  const text = target.toLowerCase();
+  if (text.includes(search)) {
+    return 100 - text.indexOf(search);
+  }
+  let score = 0;
+  let searchIndex = 0;
+  let prevMatchIndex = -1;
+  for (let i = 0; i < text.length && searchIndex < search.length; i++) {
+    if (text[i] === search[searchIndex]) {
+      score += 2;
+      if (prevMatchIndex === i - 1) {
+        score += 2;
+      }
+      prevMatchIndex = i;
+      searchIndex++;
+    }
+  }
+  if (searchIndex === search.length) {
+    score += 10; 
+  }
+  score -= Math.abs(text.length - search.length) * 0.5;
+  return Math.max(0, Math.round(score));
+}
+
 function showLoadingSuggestions() {
   searchElements.suggestions.innerHTML = `
     <div class="loading-suggestion">
@@ -133,20 +168,33 @@ function showLoadingSuggestions() {
 
 async function selectStudentBySrNumber(srNo) {
   try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isFromUrl = urlParams.get("sr_no") === srNo.toString();
+    if (!isFromUrl) {
+      lastSearchQuery = searchElements.searchBox.value.trim();
+      isFromSearch = true;
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set("sr_no", srNo);
+      window.history.pushState({ 
+        fromSearch: true, 
+        searchQuery: lastSearchQuery,
+        studentId: srNo 
+      }, "", newUrl);
+    }
     const response = await fetch(`${API_BASE}/student/${srNo}/`);
     if (response.ok) {
       const student = await response.json();
       displayStudentDetails(student);
       searchElements.searchBox.value = student.name;
       hideSuggestions();
-      cleanURL();
+      if (isFromUrl) {
+        cleanURL();
+      }
     } else {
-      console.error("Student not found:", response.status);
       showNoResults();
-      cleanURL();
+      if (!isFromUrl) cleanURL();
     }
   } catch (error) {
-    console.error("Error fetching student by SR number:", error);
     showNoResults();
     cleanURL();
   }
@@ -167,12 +215,10 @@ async function fetchAutocomplete(query) {
       const students = await response.json();
       displaySuggestions(students);
     } else {
-      console.error("Autocomplete API error:", response.status);
       hideSuggestions();
     }
   } catch (error) {
     if (error.name !== "AbortError") {
-      console.error("Error fetching autocomplete:", error);
       hideSuggestions();
     }
   } finally {
@@ -181,9 +227,7 @@ async function fetchAutocomplete(query) {
 }
 
 function displaySuggestions(students) {
-  // Remove loading state from search box
   searchElements.searchBox.parentElement.classList.remove('search-loading');
-  
   if (students.length === 0) {
     hideSuggestions();
     return;
@@ -205,7 +249,6 @@ function displaySuggestions(students) {
   searchElements.suggestions.innerHTML = "";
   searchElements.suggestions.appendChild(fragment);
   searchElements.suggestions.style.display = "block";
-  // Add fade-in animation to suggestions
   const suggestions = Array.from(searchElements.suggestions.children);
   searchElements.suggestions.classList.add('fade-in');
   suggestions.forEach((suggestion, index) => {
@@ -221,6 +264,15 @@ function displaySuggestions(students) {
 
 async function selectStudent(srNo) {
   hideSuggestions();
+  lastSearchQuery = searchElements.searchBox.value.trim();
+  isFromSearch = true;
+  const newUrl = new URL(window.location);
+  newUrl.searchParams.set("sr_no", srNo);
+  window.history.pushState({ 
+    fromSearch: true, 
+    searchQuery: lastSearchQuery,
+    studentId: srNo 
+  }, "", newUrl);
   searchElements.studentDetails.innerHTML = `
     <div class="student-card-loading">
       <div class="loading-spinner loading-spinner-large"></div>
@@ -233,16 +285,11 @@ async function selectStudent(srNo) {
       const student = await response.json();
       displayStudentDetails(student);
       searchElements.searchBox.value = student.name;
-      cleanURL();
     } else {
-      console.error("Student detail API error:", response.status);
       showNoResults();
-      cleanURL();
     }
   } catch (error) {
-    console.error("Error fetching student details:", error);
     showNoResults();
-    cleanURL();
   }
 }
 
@@ -309,7 +356,6 @@ async function fetchInstagramData(srNo) {
       <div class="loading-spinner" style="width: 16px; height: 16px;"></div>
     `;
   }
-  
   const controller = new AbortController();
   currentInstagramRequest = controller;
   currentInstagramSrNo = srNo;
@@ -329,7 +375,6 @@ async function fetchInstagramData(srNo) {
     }
   } catch (error) {
     if (error.name !== "AbortError") {
-      console.error("Error fetching Instagram data:", error);
       if (instagramInfo) {
         instagramInfo.innerHTML = '';
       }
@@ -342,11 +387,9 @@ async function fetchInstagramData(srNo) {
 function updateInstagramSection(instagramData) {
   const instagramInfo = document.querySelector('.instagram-info');
   if (!instagramInfo) return;
-
   if (instagramInfo.innerHTML.trim() !== '' && !instagramInfo.innerHTML.includes('Instagram data will load here')) {
     instagramInfo.classList.add('fade-out');
   }
-
   const updateContent = () => {
     instagramInfo.innerHTML = '';
     const instagramContent = document.createElement('div');
@@ -358,15 +401,13 @@ function updateInstagramSection(instagramData) {
       margin-left: 8px;
       width: 100%;
     `;
-
-    // Use base64 image if available, else fallback to a default or blank
     const profilePic = document.createElement('img');
     if (instagramData.profile_pic_data) {
       profilePic.src = instagramData.profile_pic_data;
     } else if (instagramData.profile_pic_url) {
       profilePic.src = instagramData.profile_pic_url;
     } else {
-      profilePic.src = ""; // or a default image path
+      profilePic.src = "";
     }
     profilePic.alt = `${instagramData.username}'s profile picture`;
     profilePic.style.cssText = `
@@ -380,7 +421,6 @@ function updateInstagramSection(instagramData) {
     profilePic.onerror = function() {
       this.style.display = 'none';
     };
-
     const statsDiv = document.createElement('div');
     statsDiv.className = 'instagram-stats';
     statsDiv.style.cssText = `
@@ -390,7 +430,6 @@ function updateInstagramSection(instagramData) {
       overflow: hidden;
       text-overflow: ellipsis;
     `;
-
     const fullName = instagramData.full_name ? instagramData.full_name.trim() : '';
     const username = instagramData.username ? instagramData.username.trim() : '';
     statsDiv.innerHTML = `
@@ -410,7 +449,6 @@ function updateInstagramSection(instagramData) {
     const initialId = document.getElementById('initial-id');
     if (initialId) initialId.style.display = 'none';
   };
-
   if (instagramInfo.classList.contains('fade-out')) {
     setTimeout(updateContent, 300);
   } else {
@@ -441,14 +479,12 @@ function createStudentDetailsHTML(student, age) {
       navCurrentUser &&
       student.contributor &&
       navCurrentUser.email === student.contributor;
-    
     instagramSection = `
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
         <a id="initial-id" href="https://instagram.com/${student.Instagram_id}" target="_blank" style="color: var(--text); text-decoration: none;">
           @${student.Instagram_id}
         </a>
         <div class="instagram-info" style="display: inline-flex; align-items: center; gap: 6px;">
-          <!-- Instagram data will load here if available -->
         </div>
         ${
           isContributor
@@ -463,12 +499,10 @@ function createStudentDetailsHTML(student, age) {
         Contribute
       </button>`;
   }
-  
   const localityTags = [student.street, student.street2, student.district]
     .filter(Boolean)
     .map((loc) => `<span class="loc-box">${loc}</span>`)
     .join("");
-  
   const dobSection = student.date_of_birth
     ? (() => {
         const dob = new Date(student.date_of_birth);
@@ -477,7 +511,6 @@ function createStudentDetailsHTML(student, age) {
             <p><span style="font-weight:500;">Days until next birthday:</span> ${getDaysUntilNextBirthday(student.date_of_birth)} days</p>`;
       })()
     : "DOB not available";
-  
   return `
         <div class="student-card">
             <h2 class="student-name">${student.name}</h2>
@@ -516,10 +549,8 @@ function createStudentDetailsHTML(student, age) {
 function confirmOptOut(srNo) {
   const existingPopup = document.getElementById("optout-confirm-popup");
   if (existingPopup) return;
-  
   const popup = document.createElement("div");
   popup.id = "optout-confirm-popup";
-  
   popup.innerHTML = `
     <div class="popup-card">
       <h3>Hide Your Profile?</h3>
@@ -531,7 +562,6 @@ function confirmOptOut(srNo) {
       <button id="optout-confirm-btn" class="popup-btn-secondary">Yehh 🕵️‍♂️</button>
       <button id="optout-cancel-btn" class="popup-btn-primary">Never Mind 😎</button>
     </div>`;
-    
   document.body.appendChild(popup);
   document.getElementById("optout-confirm-btn").onclick = () => {
     document.body.removeChild(popup);
@@ -545,13 +575,11 @@ function confirmOptOut(srNo) {
 async function handleFormSubmit(e) {
   e.preventDefault();
   const query = searchElements.searchBox.value.trim();
-  
   if (query.length === 0) {
     openBarcodeScanner();
     return;
   }
   searchElements.searchBox.parentElement.classList.add('search-loading');
-  
   if (/^\d+$/.test(query)) {
     await selectStudentBySrNumber(query);
     return;
@@ -569,7 +597,7 @@ async function handleFormSubmit(e) {
     );
     const targetStudent = exactMatch ? exactMatch.student : scoredResults[0]?.student;
     if (targetStudent) {
-      await selectStudent(targetStudent.sr_no);
+      await selectStudentBySrNumber(targetStudent.sr_no);
     } else {
       showNoResults();
     }
@@ -591,7 +619,6 @@ async function handleFormSubmit(e) {
         showNoResults();
       }
     } catch (error) {
-      console.error("Error in form submission:", error);
       showNoResults();
     }
   }
@@ -626,7 +653,6 @@ function handleGlobalClick(e) {
 function clearSearch() {
   searchElements.searchBox.value = "";
   hideSuggestions();
-  
   const studentDetails = searchElements.studentDetails;
   if (studentDetails.firstElementChild) {
     studentDetails.firstElementChild.classList.add('fade-out');
@@ -636,6 +662,8 @@ function clearSearch() {
   } else {
     studentDetails.innerHTML = "";
   }
+  isFromSearch = false;
+  lastSearchQuery = "";
   cleanURL();
   searchElements.searchBox.parentElement.classList.remove('search-loading');
 }
@@ -650,7 +678,6 @@ function hideSuggestions() {
       suggestions.classList.remove('fade-out', 'fade-in');
     }, 300);
   }
-  // Remove search loading state
   searchElements.searchBox.parentElement.classList.remove('search-loading');
 }
 
@@ -695,10 +722,8 @@ function getCSRFToken() {
 function showInstagramContribution(sr_no) {
   const oldPopup = document.getElementById("ig-contribute-popup");
   oldPopup?.remove();
-  
   const popup = document.createElement("div");
   popup.id = "ig-contribute-popup";
-  
   const isLoggedIn = navCurrentUser?.email;
   popup.innerHTML = `
     <div class="ig-popup-card">
@@ -716,7 +741,6 @@ function showInstagramContribution(sr_no) {
       <button id="popupSubmitBtn" class="popup-btn-primary" ${isLoggedIn ? "" : "disabled"}>Submit</button>
       <button id="popupCancelBtn" class="popup-btn-secondary">Cancel</button>
     </div>`;
-    
   document.body.appendChild(popup);
   document.getElementById("popupInstagramInput").focus();
   document.getElementById("popupCancelBtn").onclick = () => document.body.removeChild(popup);
@@ -724,16 +748,12 @@ function showInstagramContribution(sr_no) {
 }
 
 function openBarcodeScanner() {
-  // Prevent zooming and scrolling
   const gestureStartHandler = e => e.preventDefault();
   const touchMoveHandler = e => e.preventDefault();
   document.addEventListener('gesturestart', gestureStartHandler, { passive: false });
   document.addEventListener('touchmove', touchMoveHandler, { passive: false });
-
-  // Create scanner container
   const scannerContainer = document.createElement('div');
   scannerContainer.id = 'barcode-scanner-container';
-
   scannerContainer.innerHTML = `
     <div style="display: flex; flex-direction: column; align-items: center; gap: 18px;">
       <div style="color: #fff; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5em;">
@@ -768,7 +788,6 @@ function openBarcodeScanner() {
   scannerContainer.onclick = e => { if (e.target === scannerContainer) cleanup(); };
   window.addEventListener('beforeunload', cleanup, { once: true });
   setTimeout(cleanup, 5 * 60 * 1000);
-
   const overlay = document.getElementById("scan-overlay");
   if (typeof Html5Qrcode === "undefined") {
     overlay.style.display = "block";
@@ -816,27 +835,20 @@ function initializeScanner(overlay, cleanup) {
   }
 }
 
-// Add browser back button handling
 window.addEventListener('popstate', (event) => {
-  if (event.state && event.state.fromSearch) {
-    // Coming back from student details - go to clean search state
-    goBackToSearch();
+  const urlParams = new URLSearchParams(window.location.search);
+  const srNo = urlParams.get("sr_no");
+  if (event.state && event.state.fromSearch && !srNo) {
+    restoreSearchState(event.state.searchQuery);
+  } else if (srNo) {
+    isFromSearch = false;
+    selectStudentBySrNumber(srNo);
   } else {
-    // Normal browser navigation
-    const urlParams = new URLSearchParams(window.location.search);
-    const srNo = urlParams.get("sr_no");
-    if (srNo) {
-      isFromSearch = false;
-      selectStudentBySrNumber(srNo);
-    } else {
-      goBackToSearch();
-    }
+    restoreSearchState("");
   }
 });
 
-// Mobile-style back navigation function
-function goBackToSearch() {
-  // Clear the student details with animation
+function restoreSearchState(searchQuery) {
   const studentDetails = searchElements.studentDetails;
   if (studentDetails.firstElementChild) {
     studentDetails.firstElementChild.classList.add('fade-out');
@@ -846,31 +858,132 @@ function goBackToSearch() {
   } else {
     studentDetails.innerHTML = "";
   }
-  
-  // Reset search to clean state
-  searchElements.searchBox.value = "";
-  searchElements.searchBox.focus();
-  hideSuggestions();
-  
-  // Clear navigation state
-  navigationStack = [];
+  if (searchQuery && searchQuery.trim()) {
+    searchElements.searchBox.value = searchQuery;
+    searchElements.searchBox.focus();
+    setTimeout(() => {
+      if (autocompleteCache) {
+        searchFromCache(searchQuery);
+      }
+    }, 100);
+  } else {
+    searchElements.searchBox.value = "";
+    searchElements.searchBox.focus();
+    hideSuggestions();
+  }
   isFromSearch = false;
-  
-  // Clean URL
+  lastSearchQuery = "";
   cleanURL();
-  
-  // Remove any loading states
   searchElements.searchBox.parentElement.classList.remove('search-loading');
 }
 
-// Add ESC key support for back navigation
 document.addEventListener('keydown', (e) => {
-  // ESC key for mobile-style back navigation
   if (e.key === 'Escape') {
     if (searchElements.suggestions.style.display !== 'none') {
       hideSuggestions();
-    } else if (isFromSearch || searchElements.studentDetails.innerHTML.trim() !== '') {
-      goBackToSearch();
+    } else if (searchElements.studentDetails.innerHTML.trim() !== '') {
+      if (isFromSearch && lastSearchQuery) {
+        window.history.back();
+      } else {
+        goBackToSearch();
+      }
     }
   }
 });
+
+let isFromSearch = false;
+let lastSearchQuery = "";
+
+function goBackToSearch() {
+  const studentDetails = searchElements.studentDetails;
+  if (studentDetails.firstElementChild) {
+    studentDetails.firstElementChild.classList.add('fade-out');
+    setTimeout(() => {
+      studentDetails.innerHTML = "";
+    }, 300);
+  } else {
+    studentDetails.innerHTML = "";
+  }
+  searchElements.searchBox.value = "";
+  searchElements.searchBox.focus();
+  hideSuggestions();
+  isFromSearch = false;
+  lastSearchQuery = "";
+  cleanURL();
+  searchElements.searchBox.parentElement.classList.remove('search-loading');
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.history.state) {
+    window.history.replaceState({ initial: true }, "", window.location.href);
+  }
+  
+  initializePage();
+});
+
+function textScrambleSimple(el, phrases) {
+  let counter = 0, frame = 0, queue = [];
+  const chars = 'abcdefghijklmnopqrstuvwxyz';
+
+  function randomChar() {
+    return chars[Math.floor(Math.random() * chars.length)];
+  }
+  
+  function nextPhrase() {
+    const oldText = el.innerText;
+    const newText = phrases[counter];
+    const length = Math.max(oldText.length, newText.length);
+    queue = [];
+
+    for (let i = 0; i < length; i++) {
+      const from = oldText[i] || '';
+      const to = newText[i] || '';
+      const start = Math.floor(Math.random() * 60);
+      const end = start + Math.floor(Math.random() * 40);
+      queue.push({ from, to, start, end, char: null });
+    }
+    frame = 0;
+    update();
+  }
+
+  function update() {
+    let output = '', complete = 0;
+    for (let i = 0; i < queue.length; i++) {
+      let { from, to, start, end, char } = queue[i];
+      if (frame >= end) {
+        complete++;
+        output += to;
+      } else if (frame >= start) {
+        if (!char || Math.random() < 0.38) {
+          char = randomChar();
+          queue[i].char = char;
+        }
+        output += char;
+      } else {
+        output += from;
+      }
+    }
+    el.innerText = output;
+    if (complete === queue.length) {
+      counter = (counter + 1) % phrases.length;
+      setTimeout(nextPhrase, 3000);
+    } else {
+      requestAnimationFrame(update);
+      frame++;
+    }
+  }
+
+  nextPhrase();
+}
+
+textScrambleSimple(document.querySelector('.scramble-text'), ['classmates',
+                                                             'benchmates',
+                                                             'soulmates',
+                                                             'friends',
+                                                             'femboys',
+                                                             'tomboys',
+                                                             'furries',
+                                                             'crush',
+                                                             'bestie',
+                                                             'stalker',
+                                                             'ex']);
