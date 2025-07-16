@@ -472,6 +472,14 @@ function createOptOutHTML(student) {
         </div>`;
 }
 
+function createLocalityVisualization(localityData) {
+  if (typeof LocalityVisualizer === 'undefined') {
+    console.error('LocalityVisualizer module not loaded');
+    return '';
+  }
+  return LocalityVisualizer.create(localityData);
+}
+
 function createStudentDetailsHTML(student, age) {
   let instagramSection;
   if (student.Instagram_id) {
@@ -503,6 +511,14 @@ function createStudentDetailsHTML(student, age) {
     .filter(Boolean)
     .map((loc) => `<span class="loc-box">${loc}</span>`)
     .join("");
+  
+  // Create locality visualization using the separate module
+  const localityVisualization = createLocalityVisualization({
+    street: student.street,
+    street2: student.street2,
+    district: student.district
+  });
+  
   const dobSection = student.date_of_birth
     ? (() => {
         const dob = new Date(student.date_of_birth);
@@ -530,6 +546,7 @@ function createStudentDetailsHTML(student, age) {
                 <div class="locality">
                     <span>Locality</span>
                     <div class="locality-tags">${localityTags}</div>
+                    ${localityVisualization}
                 </div>
             </div>
             ${

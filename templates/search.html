@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}silkRoad Search{% endblock %}
 
 {% block content %}
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <main class="search-container">
   <h1>silkRoad Search</h1>
   <p class="subtitle">Know your <span class="scramble-text">classmates</span> in college</p>
+  
   <form id="searchForm" autocomplete="off">
     <div class="input-group">
       <input class="search-box" type="text" id="searchBox" placeholder="Search by name..." autocomplete="off" inputmode="search" autocorrect="off" autocapitalize="off" autofocus/>
@@ -13,21 +14,29 @@
       <div id="suggestions" class="suggestions"></div>
     </div>
   </form>
+  
   <section id="studentDetails">
-    <link rel="stylesheet" href="../static/css/bday.css">
-    <div class="container">
-            <div class="section">
-                <h2 class="section-title">Birthdays and upcoming birthdays</h2>
-                <div class="birthday-list" id="allBirthdays">
-                    <div class="loading">loading...</div>
-                </div>
-            </div>
-        </div>
-    <script src="../static/js/bday.js"></script>
-
+    <!-- Student search results will be displayed here -->
+    <div class="section">
+      <h2 class="section-title">Birthdays and upcoming birthdays</h2>
+      <div class="birthday-list" id="allBirthdays">
+        <div class="loading">loading...</div>
+      </div>
+    </div>
   </section>
+
+  <link rel="stylesheet" href="{% static 'css/bday.css' %}">
+  <div class="container">
+    
+  </div>
 </main>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{% static 'js/locality-viz.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="{% static 'js/bday.js' %}"></script>
 {% endblock %}
+
 {% block scripts %}
-  <script src="/static/js/search.js"></script>
+<script src="{% static 'js/search.js' %}"></script>
 {% endblock %}
