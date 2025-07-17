@@ -520,14 +520,38 @@ function createStudentDetailsHTML(student, age) {
     district: student.district
   });
   
+  // Department section with consistent styling
+  const departmentSection = student.department
+    ? `<div class="social-id">
+        <span class="social-platform">Department</span>
+        <span style="color: var(--text);">${student.department}</span>
+       </div>`
+    : `<div class="social-id">
+        <span class="social-platform">Department</span>
+        <span style="color: var(--muted);">Department not available</span>
+       </div>`;
+
+  // DOB section with consistent styling
   const dobSection = student.date_of_birth
     ? (() => {
         const dob = new Date(student.date_of_birth);
-        return `<p><span style="font-weight:500;">DOB:</span> ${dob.getDate().toString().padStart(2, "0")}/${(dob.getMonth() + 1).toString().padStart(2, "0")}/${dob.getFullYear()} 
-            <span class="age-info">${age} years old${age < 18 ? " 🚩" : ""}</span></p>
-            <p><span style="font-weight:500;">Days until next birthday:</span> ${getDaysUntilNextBirthday(student.date_of_birth)} days</p>`;
+        const formattedDate = `${dob.getDate().toString().padStart(2, "0")}/${(dob.getMonth() + 1).toString().padStart(2, "0")}/${dob.getFullYear()}`;
+        const daysUntil = getDaysUntilNextBirthday(student.date_of_birth);
+        return `
+          <div class="social-id">
+            <span class="social-platform">DOB</span>
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+              <span style="color: var(--text);">${formattedDate} 
+                <span class="age-info">${age} years old${age < 18 ? " 🚩" : ""}</span>
+              </span>
+              <span style="font-size: 0.85rem; color: var(--muted);">Days until next birthday: ${daysUntil} days</span>
+            </div>
+          </div>`;
       })()
-    : "DOB not available";
+    : `<div class="social-id">
+        <span class="social-platform">DOB</span>
+        <span style="color: var(--muted);">DOB not available</span>
+       </div>`;
     
   return `
         <div class="student-card card">
@@ -545,18 +569,14 @@ function createStudentDetailsHTML(student, age) {
                         : "Phone number not available 📱"
                     ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);">  ${student.father_mobile.replace(/\d{5}$/, "XXXXX")} <button class="btn btn-sm" style="margin-left: var(--spacing-xs);">login</button></a>`}
                 </div>
+                ${departmentSection}
+                ${dobSection}
                 <div class="locality">
                     <span class="social-platform">Locality</span>
                     ${localityVisualization}
                     <div class="locality-tags">${localityTags}</div>
                 </div>
             </div>
-            ${
-              student.department
-                ? `<p><strong>Department:</strong> ${student.department}</p>`
-                : ""
-            }
-            ${dobSection}
             <p class="opt-out-info"> 
                 <span class="opt-out-info"> <a href="#" onclick="confirmOptOut('${student.sr_no}')" style="color: var(--muted-light);">Request to hide your data?</a></span>
             </p>
