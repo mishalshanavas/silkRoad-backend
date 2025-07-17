@@ -38,7 +38,7 @@ class LocalityVisualizer {
     const localities = [
       { name: localityData.district, type: 'central' },
       { name: localityData.street, type: 'child' },
-      { name: localityData.street2, type: 'child' }
+      { name: localityData.street2, type: 'child' },
     ].filter(loc => loc.name);
 
     if (localities.length === 0) return '';

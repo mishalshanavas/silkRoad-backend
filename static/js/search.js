@@ -488,25 +488,26 @@ function createStudentDetailsHTML(student, age) {
       student.contributor &&
       navCurrentUser.email === student.contributor;
     instagramSection = `
-      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <a id="initial-id" href="https://instagram.com/${student.Instagram_id}" target="_blank" style="color: var(--text); text-decoration: none;">
+      <div style="display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap;">
+        <a id="initial-id" href="https://instagram.com/${student.Instagram_id}" target="_blank" class="btn btn-sm" style="text-decoration: none;">
           @${student.Instagram_id}
         </a>
-        <div class="instagram-info" style="display: inline-flex; align-items: center; gap: 6px;">
+        <div class="instagram-info" style="display: inline-flex; align-items: center; gap: var(--spacing-xs);">
         </div>
         ${
           isContributor
-            ? `<span class="contributor-badge" style="font-size: 0.7rem; color: var(--muted); margin-left: auto;">contributed by you</span>`
+            ? `<span class="contributor-badge" style="font-size: 0.7rem; color: var(--muted); margin-left: auto;">contributed by you (respect++)</span>`
             : ""
         }
       </div>`;
   } else {
     instagramSection = `
       <span style="color: var(--muted);">Instagram not available</span>
-      <button onclick="showInstagramContribution('${student.sr_no}')" style="margin-left: 8px; padding: 2px 6px; font-size: 0.8rem; background: var(--hover-bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;">
+      <button onclick="showInstagramContribution('${student.sr_no}')" class="btn btn-sm" style="margin-left: var(--spacing-sm);">
         Contribute
       </button>`;
   }
+  
   const localityTags = [student.street, student.street2, student.district]
     .filter(Boolean)
     .map((loc) => `<span class="loc-box">${loc}</span>`)
@@ -527,8 +528,9 @@ function createStudentDetailsHTML(student, age) {
             <p><span style="font-weight:500;">Days until next birthday:</span> ${getDaysUntilNextBirthday(student.date_of_birth)} days</p>`;
       })()
     : "DOB not available";
+    
   return `
-        <div class="student-card">
+        <div class="student-card card">
             <h2 class="student-name">${student.name}</h2>
             <div class="social-links">
                 <div class="social-id">
@@ -541,12 +543,12 @@ function createStudentDetailsHTML(student, age) {
                       student.father_mobile
                         ? `<a href="tel:${student.father_mobile}" style="color: var(--text);">${student.father_mobile}</a>`
                         : "Phone number not available 📱"
-                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);"> > login to view < <button class="btn" style="margin:0;font-size:0.8rem; padding:0.2rem 0.4rem">login</button></a>`}
+                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);">  ${student.father_mobile.replace(/\d{5}$/, "XXXXX")} <button class="btn btn-sm" style="margin-left: var(--spacing-xs);">login</button></a>`}
                 </div>
                 <div class="locality">
-                    <span>Locality</span>
-                    <div class="locality-tags">${localityTags}</div>
+                    <span class="social-platform">Locality</span>
                     ${localityVisualization}
+                    <div class="locality-tags">${localityTags}</div>
                 </div>
             </div>
             ${
@@ -559,7 +561,7 @@ function createStudentDetailsHTML(student, age) {
                 <span class="opt-out-info"> <a href="#" onclick="confirmOptOut('${student.sr_no}')" style="color: var(--muted-light);">Request to hide your data?</a></span>
             </p>
             <button class="btn" onclick="clearSearch()">Clear Results</button>
-            <div id="contribute-instagram-form" style="display:none; margin-top:10px;"></div>
+            <div id="contribute-instagram-form" style="display:none; margin-top: var(--spacing-md);"></div>
         </div>`;
 }
 
@@ -644,7 +646,7 @@ async function handleFormSubmit(e) {
 
 function showNoResults() {
   searchElements.studentDetails.innerHTML = `
-        <div class="student-card fade-in">
+        <div class="student-card card fade-in">
             <div class="no-results">
                 <h3>🔍 No student found</h3>
                 <p>No student found with that name. Try searching for someone else!</p>
@@ -762,6 +764,64 @@ function showInstagramContribution(sr_no) {
   document.getElementById("popupInstagramInput").focus();
   document.getElementById("popupCancelBtn").onclick = () => document.body.removeChild(popup);
   document.getElementById("popupSubmitBtn").onclick = () => handleInstagramSubmit(sr_no, popup);
+}
+
+async function handleInstagramSubmit(sr_no, popup) {
+  const input = document.getElementById("popupInstagramInput");
+  const responseMsg = document.getElementById("popupResponseMsg");
+  const submitBtn = document.getElementById("popupSubmitBtn");
+  
+  const instagramId = input.value.trim();
+  
+  if (!instagramId) {
+    responseMsg.innerHTML = '<span style="color: #c62828;">Please enter an Instagram ID</span>';
+    return;
+  }
+  
+  // Remove @ if user included it
+  const cleanId = instagramId.replace(/^@/, '');
+  
+  if (!/^[a-zA-Z0-9._]+$/.test(cleanId)) {
+    responseMsg.innerHTML = '<span style="color: #c62828;">Invalid Instagram ID format</span>';
+    return;
+  }
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting...";
+  responseMsg.innerHTML = '<span style="color: var(--muted);">Submitting...</span>';
+  
+  try {
+    const response = await fetch(`${API_BASE}/contribute/instagram/${sr_no}/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken()
+      },
+      body: JSON.stringify({
+        instagram_id: cleanId
+      })
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      responseMsg.innerHTML = '<span style="color: #4caf50;">✓ Thank you for contributing!</span>';
+      setTimeout(() => {
+        document.body.removeChild(popup);
+        // Refresh the student details to show the new Instagram ID
+        selectStudentBySrNumber(sr_no);
+      }, 1500);
+    } else {
+      const error = await response.json();
+      responseMsg.innerHTML = `<span style="color: #c62828;">${error.error || error.detail || 'Failed to submit'}</span>`;
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit";
+    }
+  } catch (error) {
+    responseMsg.innerHTML = '<span style="color: #c62828;">Network error. Please try again.</span>';
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit";
+  }
 }
 
 function openBarcodeScanner() {
