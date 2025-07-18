@@ -34,6 +34,23 @@ function cleanURL() {
   window.history.replaceState({}, "", newUrl);
 }
 
+function searchFromCache(query) {
+  if (!autocompleteCache) {
+    console.error("Autocomplete cache not loaded.");
+    return;
+  }
+  const searchTerm = query.toLowerCase();
+  const scoredResults = autocompleteCache.map(student => {
+    const nameScore = fuzzyScore(searchTerm, student.name);
+    return { student, score: nameScore };
+  })
+    .filter(result => result.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .map(result => result.student);
+  displaySuggestions(scoredResults);
+}
+
 class SearchIndex {
   constructor() {
     this.nameIndex = new Map();
@@ -97,23 +114,6 @@ async function loadAutocompleteCache() {
   } catch (error) {
     console.error("Error loading autocomplete cache:", error);
   }
-}
-
-function searchFromCache(query) {
-  if (!autocompleteCache) {
-    fetchAutocomplete(query);
-    return;
-  }
-  const searchTerm = query.toLowerCase();
-  const scoredResults = autocompleteCache.map(student => {
-    const nameScore = fuzzyScore(searchTerm, student.name);
-    return { student, score: nameScore };
-  })
-    .filter(result => result.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10)
-    .map(result => result.student);
-  displaySuggestions(scoredResults);
 }
 
 function handleSearchInput() {
@@ -609,49 +609,37 @@ async function handleFormSubmit(e) {
     return;
   }
   searchElements.searchBox.parentElement.classList.add('search-loading');
+  hideSuggestions();
+
   if (/^\d+$/.test(query)) {
     await selectStudentBySrNumber(query);
     return;
   }
+
   if (autocompleteCache) {
     const searchTerm = query.toLowerCase();
-    const scoredResults = autocompleteCache.map(student => {
-      const nameScore = fuzzyScore(searchTerm, student.name);
-      return { student, score: nameScore };
-    })
+    const scoredResults = autocompleteCache.map(student => ({
+      student,
+      score: fuzzyScore(searchTerm, student.name)
+    }))
       .filter(result => result.score > 0)
       .sort((a, b) => b.score - a.score);
+
     const exactMatch = scoredResults.find(
       result => result.student.name.toLowerCase() === searchTerm
     );
     const targetStudent = exactMatch ? exactMatch.student : scoredResults[0]?.student;
+
     if (targetStudent) {
       await selectStudentBySrNumber(targetStudent.sr_no);
     } else {
       showNoResults();
     }
   } else {
-    try {
-      const response = await fetch(`${API_BASE}/autocomplete/?q=${encodeURIComponent(query)}`);
-      if (response.ok) {
-        const students = await response.json();
-        const exactMatch = students.find(
-          (s) => s.name.toLowerCase() === query.toLowerCase()
-        );
-        const targetStudent = exactMatch || students[0];
-        if (targetStudent) {
-          await selectStudent(targetStudent.id);
-        } else {
-          showNoResults();
-        }
-      } else {
-        showNoResults();
-      }
-    } catch (error) {
-      showNoResults();
-    }
+    // This case should ideally not be reached if cache loading is reliable.
+    showNoResults();
+    console.error("Search submitted before autocomplete cache was loaded.");
   }
-  hideSuggestions();
 }
 
 function showNoResults() {
@@ -835,20 +823,63 @@ async function handleInstagramSubmit(sr_no, popup) {
 }
 
 function openBarcodeScanner() {
+  // Prevent zooming and scrolling
   const gestureStartHandler = e => e.preventDefault();
   const touchMoveHandler = e => e.preventDefault();
   document.addEventListener('gesturestart', gestureStartHandler, { passive: false });
   document.addEventListener('touchmove', touchMoveHandler, { passive: false });
+
+  // Create scanner container
   const scannerContainer = document.createElement('div');
   scannerContainer.id = 'barcode-scanner-container';
+  Object.assign(scannerContainer.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    background: 'rgba(0,0,0,0.92)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: '10000',
+    flexDirection: 'column'
+  });
+
+  // Minimal UI: No overlay on video
   scannerContainer.innerHTML = `
     <div style="display: flex; flex-direction: column; align-items: center; gap: 18px;">
       <div style="color: #fff; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5em;">
         Scan ID
       </div>
-      <div id="reader"></div>
+      <div id="reader" style="
+        width: 260px;
+        height: 170px;
+        background: #181818;
+        border: 3px solid #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 24px #000a;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      "></div>
       <div id="scan-overlay" style="display:none"></div>
-      <button id="close-scanner-btn">Close</button>
+      <button id="close-scanner-btn" style="
+        background: #fff;
+        color: #222;
+        border: none;
+        border-radius: 6px;
+        padding: 0.7em 2em;
+        font-size: 1.05rem;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 1px 8px #0002;
+        margin-top: 8px;
+        transition: background 0.18s;
+      " onmouseover="this.style.background='#eee'" onmouseout="this.style.background='#fff'">Close</button>
     </div>
   `;
   document.body.appendChild(scannerContainer);
@@ -875,6 +906,7 @@ function openBarcodeScanner() {
   scannerContainer.onclick = e => { if (e.target === scannerContainer) cleanup(); };
   window.addEventListener('beforeunload', cleanup, { once: true });
   setTimeout(cleanup, 5 * 60 * 1000);
+
   const overlay = document.getElementById("scan-overlay");
   if (typeof Html5Qrcode === "undefined") {
     overlay.style.display = "block";
