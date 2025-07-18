@@ -78,6 +78,7 @@ def format_user_data(user_info, profile_pic_data=None):
         'pk': user_info.get('pk'),
         'username': user_info.get('username', ''),
         'full_name': user_info.get('full_name', ''),
+        'bio': user_info.get('bio', ''),  # <-- Add this line
         'profile_pic_data': profile_pic_data,
         'is_private': user_info.get('is_private', False),
         'follower_count': user_info.get('follower_count', 0),
@@ -97,7 +98,8 @@ def fetch_with_fallback(pk, sr_no):
     user_data = {
         'pk': user_info.pk,
         'username': user_info.username,
-        'full_name': user_info.full_name
+        'full_name': user_info.full_name,
+        'bio': user_info.biography,  # <-- Make sure bio is included
     }
     update_student_info(student, user_data)
     
@@ -105,6 +107,7 @@ def fetch_with_fallback(pk, sr_no):
         'pk': user_info.pk,
         'username': user_info.username,
         'full_name': user_info.full_name,
+        'bio': user_info.biography,  # <-- Pass bio here too
         'is_private': user_info.is_private,
         'follower_count': user_info.follower_count,
         'media_count': user_info.media_count,
@@ -132,7 +135,7 @@ def fetch_instagram_info(request):
             student = Student.objects.get(sr_no=sr_no)
             update_student_info(student, user_info)
             
-            return JsonResponse(format_user_data(user_info, profile_pic_data))
+            return JsonResponse(format_user_data(user_info, profile_pic_data))  # user_info should have 'bio'
     except Exception:
         pass
     

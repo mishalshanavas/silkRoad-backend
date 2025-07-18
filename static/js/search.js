@@ -384,71 +384,61 @@ async function fetchInstagramData(srNo) {
     currentInstagramSrNo = null;
   }
 }
+
+function formatInstagramNumber(num) {
+  if (num === null || num === undefined) return 0;
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return num.toString();
+}
+
 function updateInstagramSection(instagramData) {
   const instagramInfo = document.querySelector('.instagram-info');
   if (!instagramInfo) return;
+
   if (instagramInfo.innerHTML.trim() !== '' && !instagramInfo.innerHTML.includes('Instagram data will load here')) {
     instagramInfo.classList.add('fade-out');
   }
+
+  const renderProfile = (profile) => {
+    const profilePicSrc = profile.profile_pic_data || profile.profile_pic_url || '';
+    const profilePicStyle = profilePicSrc ? `background-image: url('${profilePicSrc}');` : '';
+
+    return `
+      <div class="ig-profile-container" onclick="window.open('https://instagram.com/${profile.username}', '_blank')">
+        <div class="ig-profile-header">
+          <a href="https://instagram.com/${profile.username}" target="_blank" class="ig-profile-pic">
+            <div class="ig-profile-pic-inner" style="${profilePicStyle}"></div>
+          </a>
+          <div class="ig-profile-info">
+            <a href="https://instagram.com/${profile.username}" target="_blank" class="ig-username">
+              ${profile.full_name} ${profile.is_private ? '🔒' : ''}
+            </a>
+            <div class="ig-profile-stats">
+              <span class="ig-stat-item"><span class="ig-stat-number">${formatInstagramNumber(profile.media_count)}</span> posts</span>
+              <span class="ig-stat-item"><span class="ig-stat-number">${formatInstagramNumber(profile.follower_count)}</span> followers</span>
+              <span class="ig-stat-item"><span class="ig-stat-number">${formatInstagramNumber(profile.following_count)}</span> following</span>
+            </div>
+            <div class="ig-full-name">${profile.username || ''}</div>
+          </div>
+        </div>
+        ${profile.biography ? `<div class="ig-bio">${profile.biography}</div>` : ''}
+      </div>
+    `;
+  };
+
   const updateContent = () => {
-    instagramInfo.innerHTML = '';
-    const instagramContent = document.createElement('div');
-    instagramContent.className = 'instagram-content fade-in';
-    instagramContent.style.cssText = `
-      display: flex; 
-      align-items: center; 
-      gap: 8px;
-      margin-left: 8px;
-      width: 100%;
-    `;
-    const profilePic = document.createElement('img');
-    if (instagramData.profile_pic_data) {
-      profilePic.src = instagramData.profile_pic_data;
-    } else if (instagramData.profile_pic_url) {
-      profilePic.src = instagramData.profile_pic_url;
-    } else {
-      profilePic.src = "";
-    }
-    profilePic.alt = `${instagramData.username}'s profile picture`;
-    profilePic.style.cssText = `
-      width: 32px; 
-      height: 32px; 
-      border-radius: 50%; 
-      object-fit: cover; 
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-    `;
-    profilePic.onerror = function() {
-      this.style.display = 'none';
-    };
-    const statsDiv = document.createElement('div');
-    statsDiv.className = 'instagram-stats';
-    statsDiv.style.cssText = `
-      font-size: 0.75rem; 
-      color: var(--muted); 
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    `;
-    const fullName = instagramData.full_name ? instagramData.full_name.trim() : '';
-    const username = instagramData.username ? instagramData.username.trim() : '';
-    statsDiv.innerHTML = `
-      <div onclick="location.href='https://instagram.com/${username}'" style="font-weight: 500; font-size: larger; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-        @${username}
-      </div>
-      <div style="font-size: 0.8rem; white-space: wrap; overflow: hidden; text-overflow: ellipsis;">
-        👥 ${instagramData.follower_count?.toLocaleString() || 0} followers • 
-        📸 ${instagramData.media_count?.toLocaleString() || 0} posts • 
-        ${instagramData.is_private ? '🔒 Private' : '🔓 Public'}
-      </div>
-    `;
-    instagramContent.appendChild(profilePic);
-    instagramContent.appendChild(statsDiv);
-    instagramInfo.appendChild(instagramContent);
+    instagramInfo.innerHTML = renderProfile(instagramData);
     instagramInfo.classList.remove('fade-out');
+    instagramInfo.classList.add('fade-in');
     const initialId = document.getElementById('initial-id');
     if (initialId) initialId.style.display = 'none';
   };
+
   if (instagramInfo.classList.contains('fade-out')) {
     setTimeout(updateContent, 300);
   } else {

@@ -42,6 +42,7 @@ async def fetch_instagram_info(
             'is_private': user_info.is_private,
             'follower_count': user_info.follower_count,
             'media_count': user_info.media_count,
+            'bio': user_info.biography,
         }
         
         # Always fetch profile picture
