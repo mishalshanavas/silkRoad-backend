@@ -12,4 +12,5 @@ urlpatterns = [
     path('toggle-opt-out/<str:sr_no>/', toggle_opt_out, name='toggle-opt-out'),
     path('instagram/', fetch_instagram_info, name='instagram_info'),
     path('allstudents/', get_all_autocomplete, name='get_all_autocomplete'),
+    path('instagram-stats/', get_instagram_completion_stats, name='instagram_stats'),
 ]

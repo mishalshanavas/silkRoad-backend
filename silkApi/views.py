@@ -200,3 +200,18 @@ def search(request):
 
 def test(request):
     return render(request, 'test.html')
+
+def get_instagram_completion_stats(request):
+    """Get statistics about Instagram ID completion"""
+    total_students = Student.objects.count()
+    students_with_instagram = Student.objects.filter(
+        Instagram_id__isnull=False
+    ).exclude(Instagram_id='').count()
+    
+    percentage = (students_with_instagram / total_students * 100) if total_students > 0 else 0
+    
+    return JsonResponse({
+        'total_students': total_students,
+        'students_with_instagram': students_with_instagram,
+        'completion_percentage': round(percentage, 1)
+    })

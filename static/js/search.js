@@ -557,7 +557,7 @@ function createStudentDetailsHTML(student, age) {
                       student.father_mobile
                         ? `<a href="tel:${student.father_mobile}" style="color: var(--text);">${student.father_mobile}</a>`
                         : "Phone number not available 📱"
-                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);">  ${student.father_mobile.replace(/\d{5}$/, "XXXXX")} <button class="btn btn-sm" style="margin-left: var(--spacing-xs);">login</button></a>`}
+                    ) : `<a href="/sign_in?next=/search/?sr_no=${student.sr_no}" style="color: var(--text);">  ${student.father_mobile.replace(/\d{7}$/, "XXXXXXX")} <button class="btn btn-sm" style="margin-left: var(--spacing-xs);">login</button></a>`}
                 </div>
                 ${departmentSection}
                 ${dobSection}
